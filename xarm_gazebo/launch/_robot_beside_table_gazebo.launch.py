@@ -18,28 +18,46 @@ from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
 from launch.actions import OpaqueFunction
 
-    
-def launch_setup(context, *args, **kwargs):
-    prefix = LaunchConfiguration('prefix', default='')
+def get_robot_name(
+    robot_type,
+    dof
+):
+    return f"{robot_type}{dof if robot_type in ('xarm', 'lite') else ''}"
+
+def build_robot_description(
+    context,
+    this_robot_prefix="",
+    this_robot_namespace=""
+):
+    dof = LaunchConfiguration('dof', default=7)
+    robot_type = LaunchConfiguration('robot_type', default='xarm')
+
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=False)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
+
+    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
+    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
+
+    model1300 = LaunchConfiguration('model1300', default=False)
+    robot_sn = LaunchConfiguration('robot_sn', default='')
+
+    # whether to add gripper
     add_gripper = LaunchConfiguration('add_gripper', default=False)
     add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
     add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-    dof = LaunchConfiguration('dof', default=7)
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
+
+    # whether to apply joint limits
+    limited = LaunchConfiguration('limited', default=False)
+    # whether to enable effort/velocity control
+    effort_control = LaunchConfiguration('effort_control', default=False)
+    velocity_control = LaunchConfiguration('velocity_control', default=False)
+    # which ros2 control plugin to use. could be ign control in the future if using ign gazebo
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='gazebo_ros2_control/GazeboSystem')
-    
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
-    model1300 = LaunchConfiguration('model1300', default=False)
-    robot_sn = LaunchConfiguration('robot_sn', default='')
+
     attach_to = LaunchConfiguration('attach_to', default='world')
     attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
     attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
 
+    # 3rd party end-effector support
     add_other_geometry = LaunchConfiguration('add_other_geometry', default=False)
     geometry_type = LaunchConfiguration('geometry_type', default='box')
     geometry_mass = LaunchConfiguration('geometry_mass', default=0.1)
@@ -53,24 +71,27 @@ def launch_setup(context, *args, **kwargs):
     geometry_mesh_tcp_xyz = LaunchConfiguration('geometry_mesh_tcp_xyz', default='"0 0 0"')
     geometry_mesh_tcp_rpy = LaunchConfiguration('geometry_mesh_tcp_rpy', default='"0 0 0"')
     kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
-    
-    load_controller = LaunchConfiguration('load_controller', default=False)
-    
-    ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
 
     # ros2 control params
     # xarm_controller/launch/lib/robot_controller_lib.py
     mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory('xarm_controller'), 'launch', 'lib', 'robot_controller_lib.py'))
     generate_ros2_control_params_temp_file = getattr(mod, 'generate_ros2_control_params_temp_file')
     ros2_control_params = generate_ros2_control_params_temp_file(
-        os.path.join(get_package_share_directory('xarm_controller'), 'config', '{}{}_controllers.yaml'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')),
-        prefix=prefix.perform(context), 
+        os.path.join(
+            get_package_share_directory('xarm_controller'),
+            'config', f'{get_robot_name(robot_type.perform(context), dof.perform(context))}_controllers.yaml'
+        ),
+        prefix=this_robot_prefix, 
         add_gripper=add_gripper.perform(context) in ('True', 'true'),
         add_bio_gripper=add_bio_gripper.perform(context) in ('True', 'true'),
-        ros_namespace=LaunchConfiguration('ros_namespace', default='').perform(context),
+        # BL: this exists but doesn't work. 
+        # see https://github.com/ros-controls/gazebo_ros2_control/issues/127
+        # ros_namespace=ros_namespace,  
         update_rate=1000,
         robot_type=robot_type.perform(context)
     )
+
+    print(ros2_control_params)
 
     # robot_description
     # xarm_description/launch/lib/robot_description_lib.py
@@ -80,7 +101,7 @@ def launch_setup(context, *args, **kwargs):
         'robot_description': get_xacro_file_content(
             xacro_file=PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'xarm_device.urdf.xacro']), 
             arguments={
-                'prefix': prefix,
+                'prefix': this_robot_prefix,
                 'dof': dof,
                 'robot_type': robot_type,
                 'add_gripper': add_gripper,
@@ -116,17 +137,18 @@ def launch_setup(context, *args, **kwargs):
         ),
     }
 
-    # robot state publisher node
-    robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[{'use_sim_time': True}, robot_description],
-        remappings=[
-            ('/tf', 'tf'),
-            ('/tf_static', 'tf_static'),
-        ]
-    )
+    return robot_description
+
+def launch_setup(context, *args, **kwargs):
+    dof = LaunchConfiguration('dof', default=7)
+    robot_type = LaunchConfiguration('robot_type', default='xarm')        
+
+    load_controller = LaunchConfiguration('load_controller', default=True)
+    add_gripper = LaunchConfiguration('add_gripper', default=False)
+    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
+    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
+
+    # ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
 
     # gazebo launch
     # gazebo_ros/launch/gazebo.launch.py
@@ -135,69 +157,122 @@ def launch_setup(context, *args, **kwargs):
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py'])),
         launch_arguments={
             'world': xarm_gazebo_world,
-            'server_required': 'true',
-            'gui_required': 'true',
+            'verbose': 'true',
+            'server': 'true',
+            'gui': 'true',
         }.items(),
     )
 
-    # gazebo spawn entity node
-    gazebo_spawn_entity_node = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
-        output='screen',
-        arguments=[
-            '-topic', 'robot_description',
-            # '-entity', '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
-            '-entity', 'UF_ROBOT',
-            '-x', '-0.2',
-            '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.5',
-            '-z', '1.021',
-            '-Y', '1.571',
-        ],
-        parameters=[{'use_sim_time': True}],
-    )
+    nodes_to_launch = [gazebo_launch]
 
-    # Load controllers
-    controllers = [
-        'joint_state_broadcaster',
-        '{}{}{}_traj_controller'.format(prefix.perform(context), robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
-    ]
-    if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true'):
-        controllers.append('{}{}_gripper_traj_controller'.format(prefix.perform(context), robot_type.perform(context)))
-    elif robot_type.perform(context) != 'lite' and add_bio_gripper.perform(context) in ('True', 'true'):
-        controllers.append('{}bio_gripper_traj_controller'.format(prefix.perform(context)))
-    load_controllers = []
-    if load_controller.perform(context) in ('True', 'true'):
-        for controller in controllers:
-            load_controllers.append(Node(
+    for robot_idx in range(1):
+        # this_robot_namespace = f"xarm{robot_idx}"
+        # this_robot_prefix = f"{this_robot_namespace}_"
+        this_robot_namespace=""
+        this_robot_prefix=""
+
+
+        robot_description = build_robot_description(
+            context, 
+            this_robot_prefix=this_robot_prefix, 
+            this_robot_namespace=this_robot_namespace
+        )
+
+        """
+        The following happens for each robot
+        """
+        # robot state publisher node
+        robot_state_publisher_node = Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            output='screen',
+            parameters=[{'use_sim_time': True}, robot_description],
+            # BL: don't remap /tf to custom topics. 
+            # I.e., multiple robots publish to same /tf topic 
+            # Instead, use prefix to distinguish different robots
+            # remappings=[
+            #     ('/tf', 'tf'),
+            #     ('/tf_static', 'tf_static'),
+            # ]
+            namespace=this_robot_namespace
+        )
+
+        nodes_to_launch.append(
+            robot_state_publisher_node            
+        )
+
+        # gazebo spawn entity node
+        gazebo_spawn_entity_node = Node(
+            package="gazebo_ros",
+            executable="spawn_entity.py",
+            namespace=this_robot_namespace,
+            output='screen',
+            arguments=[
+                '-topic', 'robot_description',
+                # '-entity', '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
+                '-entity', f'{this_robot_namespace}_robot',
+                '-x', str(-0.4 + robot_idx * 0.4),
+                '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.5',
+                '-z', '1.021',
+                '-Y', '1.571',
+                '-timeout', '10000',
+                # this puts gazebo_ros2_control to correct namespace
+                '-robot_namespace', this_robot_namespace
+            ],
+            parameters=[{'use_sim_time': True}],
+        )
+
+        nodes_to_launch.append(
+            gazebo_spawn_entity_node            
+        )
+
+        # Load controllers
+        controllers = [
+            'joint_state_broadcaster',
+            # the below becomes something like xarm0_xarm6_traj_controller. 
+            # The first "xarm0" is from prefix. 
+            # The second needs to match what's in xarm_control/config/*.yaml 
+            f'{this_robot_prefix}{get_robot_name(robot_type.perform(context), dof.perform(context))}_traj_controller',
+        ]
+        if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true'):
+            controllers.append(
+                f'{prefix.perform(context)}{robot_type.perform(context)}_gripper_traj_controller'
+            )
+        elif robot_type.perform(context) != 'lite' and add_bio_gripper.perform(context) in ('True', 'true'):
+            controllers.append(
+                f'{prefix.perform(context)}bio_gripper_traj_controller'
+            )
+
+        load_controllers = [
+            Node(
                 package='controller_manager',
-                executable='spawner',
+                executable="spawner",
+                namespace=this_robot_namespace,
                 output='screen',
                 arguments=[
                     controller,
-                    '--controller-manager', '{}/controller_manager'.format(ros_namespace)
+                    # spawner is already in the namespace of ros_namespace
+                    # so just refer to controller_manager relatively 
+                    # (since gazebo_ros2_control is in correct ros_namespace)
+                    # note the lack of /
+                    '--controller-manager', 'controller_manager'
                 ],
                 parameters=[{'use_sim_time': True}],
-            ))
+            )
+            for controller in controllers
+        ] if load_controller.perform(context) in ('True', 'true') else []
 
-    if len(load_controllers) > 0:
-        return [
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=gazebo_spawn_entity_node,
-                    on_exit=load_controllers,
+        if load_controllers:
+            nodes_to_launch.append(
+                RegisterEventHandler(
+                    event_handler=OnProcessExit(
+                        target_action=gazebo_spawn_entity_node,
+                        on_exit=load_controllers
+                    )
                 )
-            ),
-            gazebo_launch,
-            robot_state_publisher_node,
-            gazebo_spawn_entity_node,
-        ]
-    else:
-        return [
-            gazebo_launch,
-            robot_state_publisher_node,
-            gazebo_spawn_entity_node,
-        ]
+            )
+
+    return nodes_to_launch
 
 
 def generate_launch_description():
