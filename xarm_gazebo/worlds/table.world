@@ -1,17 +1,25 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <world name="default">
-    <include>
-      <uri>model://ground_plane</uri>
-    </include>
-    <include>
-      <uri>model://sun</uri>
-    </include>
-    <include>
-      <uri>model://table</uri>
-      <name>table</name>
+<include>
+  <uri>
+    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane
+  </uri>
+</include>
+
+<include>
+  <uri>
+    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun
+  </uri>
+</include>  
+
+<include>
+  <uri>
+    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table
+  </uri>
       <pose>0.0 -0.84 0 0 0 0</pose>
-    </include>
+
+</include>  
 
     <physics type="ode">
       <max_step_size>0.001</max_step_size>

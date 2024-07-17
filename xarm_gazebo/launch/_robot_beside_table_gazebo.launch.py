@@ -32,7 +32,7 @@ def build_robot_description(
     dof = LaunchConfiguration('dof', default=7)
     robot_type = LaunchConfiguration('robot_type', default='xarm')
 
-    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
+    # hw_ns = LaunchConfiguration('hw_ns', default='xarm')
 
     add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
     add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
@@ -51,7 +51,7 @@ def build_robot_description(
     effort_control = LaunchConfiguration('effort_control', default=False)
     velocity_control = LaunchConfiguration('velocity_control', default=False)
     # which ros2 control plugin to use. could be ign control in the future if using ign gazebo
-    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='gazebo_ros2_control/GazeboSystem')
+    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='ign_ros2_control/IgnitionSystem')
 
     attach_to = LaunchConfiguration('attach_to', default='world')
     attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
@@ -84,9 +84,7 @@ def build_robot_description(
         prefix=this_robot_prefix, 
         add_gripper=add_gripper.perform(context) in ('True', 'true'),
         add_bio_gripper=add_bio_gripper.perform(context) in ('True', 'true'),
-        # BL: this exists but doesn't work. 
-        # see https://github.com/ros-controls/gazebo_ros2_control/issues/127
-        # ros_namespace=ros_namespace,  
+        ros_namespace=this_robot_namespace,
         update_rate=1000,
         robot_type=robot_type.perform(context)
     )
@@ -107,7 +105,7 @@ def build_robot_description(
                 'add_gripper': add_gripper,
                 'add_vacuum_gripper': add_vacuum_gripper,
                 'add_bio_gripper': add_bio_gripper,
-                'hw_ns': hw_ns.perform(context).strip('/'),
+                'hw_ns': this_robot_namespace,
                 'limited': limited,
                 'effort_control': effort_control,
                 'velocity_control': velocity_control,
@@ -148,28 +146,39 @@ def launch_setup(context, *args, **kwargs):
     add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
     add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
 
+    num_robots = LaunchConfiguration('num_robots', default=1)
+
     # ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
 
     # gazebo launch
     # gazebo_ros/launch/gazebo.launch.py
     xarm_gazebo_world = PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'worlds', 'table.world'])
     gazebo_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py'])),
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'world': xarm_gazebo_world,
-            'verbose': 'true',
-            'server': 'true',
-            'gui': 'true',
+            'gz_args': ''
         }.items(),
     )
 
-    nodes_to_launch = [gazebo_launch]
+    spawn_world = Node(
+        package="ros_gz_sim",
+        executable="create",
+        output='screen',
+        arguments=[
+            '-file', 'https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table',
+            '-y', '-0.84'
+        ],
+        parameters=[{'use_sim_time': True}],
+    )
 
-    for robot_idx in range(1):
-        # this_robot_namespace = f"xarm{robot_idx}"
-        # this_robot_prefix = f"{this_robot_namespace}_"
-        this_robot_namespace=""
-        this_robot_prefix=""
+    nodes_to_launch = [gazebo_launch, spawn_world]
+    last_spawn_entity = None 
+
+    for robot_idx in range(int(num_robots.perform(context))):
+        this_robot_namespace = f"xarm{robot_idx}"
+        this_robot_prefix = f"{this_robot_namespace}_"
+        # this_robot_namespace=""
+        # this_robot_prefix=""
 
 
         robot_description = build_robot_description(
@@ -203,31 +212,45 @@ def launch_setup(context, *args, **kwargs):
 
         # gazebo spawn entity node
         gazebo_spawn_entity_node = Node(
-            package="gazebo_ros",
-            executable="spawn_entity.py",
+            package="ros_gz_sim",
+            executable="create",
             namespace=this_robot_namespace,
             output='screen',
             arguments=[
-                '-topic', 'robot_description',
+                '-topic', f'robot_description',
                 # '-entity', '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
-                '-entity', f'{this_robot_namespace}_robot',
+                # '-entity', f'{this_robot_namespace}_robot',
+                '-allow_renaming', 'false',
                 '-x', str(-0.4 + robot_idx * 0.4),
                 '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.5',
                 '-z', '1.021',
                 '-Y', '1.571',
                 '-timeout', '10000',
                 # this puts gazebo_ros2_control to correct namespace
-                '-robot_namespace', this_robot_namespace
+                # '-robot_namespace', this_robot_namespace
             ],
             parameters=[{'use_sim_time': True}],
         )
 
-        nodes_to_launch.append(
-            gazebo_spawn_entity_node            
-        )
+        if last_spawn_entity is not None:
+            nodes_to_launch.append(
+                RegisterEventHandler(
+                    event_handler=OnProcessExit(
+                        target_action=last_spawn_entity,
+                        on_exit=gazebo_spawn_entity_node
+                    )
+                )
+            )
+        else:
+            nodes_to_launch.append(
+                gazebo_spawn_entity_node            
+            )
+        
+        last_spawn_entity = gazebo_spawn_entity_node
 
         # Load controllers
         controllers = [
+            # f'{this_robot_prefix}{get_robot_name(robot_type.perform(context), dof.perform(context))}_joint_state_broadcaster',
             'joint_state_broadcaster',
             # the below becomes something like xarm0_xarm6_traj_controller. 
             # The first "xarm0" is from prefix. 
@@ -247,7 +270,6 @@ def launch_setup(context, *args, **kwargs):
             Node(
                 package='controller_manager',
                 executable="spawner",
-                namespace=this_robot_namespace,
                 output='screen',
                 arguments=[
                     controller,
@@ -255,7 +277,8 @@ def launch_setup(context, *args, **kwargs):
                     # so just refer to controller_manager relatively 
                     # (since gazebo_ros2_control is in correct ros_namespace)
                     # note the lack of /
-                    '--controller-manager', 'controller_manager'
+                    '--controller-manager', f'{this_robot_namespace}/controller_manager',
+                    '--namespace', f'{this_robot_namespace}'
                 ],
                 parameters=[{'use_sim_time': True}],
             )

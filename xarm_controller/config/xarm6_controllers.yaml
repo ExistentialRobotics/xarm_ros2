@@ -1,14 +1,13 @@
 controller_manager:
   ros__parameters:
     update_rate: 50  # Hz
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-    xarm6_traj_controller:
+    traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-xarm6_traj_controller:
+traj_controller:
   ros__parameters:
     command_interfaces:
       - position
