@@ -255,7 +255,7 @@ def launch_setup(context, *args, **kwargs):
             # the below becomes something like xarm0_xarm6_traj_controller. 
             # The first "xarm0" is from prefix. 
             # The second needs to match what's in xarm_control/config/*.yaml 
-            f'{this_robot_prefix}{get_robot_name(robot_type.perform(context), dof.perform(context))}_traj_controller',
+            f'{this_robot_prefix}traj_controller',
         ]
         if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true'):
             controllers.append(
