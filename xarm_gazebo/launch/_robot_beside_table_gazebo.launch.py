@@ -171,7 +171,18 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'use_sim_time': True}],
     )
 
-    nodes_to_launch = [gazebo_launch, spawn_world]
+    # 
+    # ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
+    clock_parameter_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        output="screen",
+        arguments=[
+            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"
+        ]
+    )
+
+    nodes_to_launch = [gazebo_launch, spawn_world, clock_parameter_bridge]
     last_spawn_entity = None 
 
     for robot_idx in range(int(num_robots.perform(context))):
