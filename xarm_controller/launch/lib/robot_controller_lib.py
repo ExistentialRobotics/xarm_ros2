@@ -62,12 +62,25 @@ def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', 
                         ros2_control_params_yaml[name] = gripper_control_params_yaml[name]
                 
         add_prefix_to_ros2_control_params(prefix, ros2_control_params_yaml)
-        if ros_namespace:
-            ros2_control_params_yaml = {
-                ros_namespace: ros2_control_params_yaml
-            }
-        with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
-            yaml.dump(ros2_control_params_yaml, h, default_flow_style=False)
+
+        if not ros_namespace.startswith('/'):
+            ros_namespace = f'/{ros_namespace}'
+
+        # add namespace, possibly just slash to all nodes
+        namespaced_ros2_control_params = {
+            f'{ros_namespace}/{key}': val
+            for key, val in ros2_control_params_yaml.items()
+        }
+
+        with NamedTemporaryFile(mode='w', prefix='controller_params_', delete=False) as h:
+            # specify the params_file for all the controllers, as the temporary saved file.
+            controller_spec = namespaced_ros2_control_params[f"{ros_namespace}/controller_manager"]["ros__parameters"]
+            for potential_controller in controller_spec.keys():
+                if potential_controller == "update_rate":
+                    continue
+                controller_spec[potential_controller]["params_file"] = h.name
+            
+            yaml.dump(namespaced_ros2_control_params, h, default_flow_style=False)
             return h.name
     return ros2_control_params_path
 
