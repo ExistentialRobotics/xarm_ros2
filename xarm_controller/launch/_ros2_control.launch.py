@@ -14,7 +14,7 @@ from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from uf_ros_lib.uf_robot_utils import get_xacro_command
 
 def launch_setup(context, *args, **kwargs):
     robot_ip = LaunchConfiguration('robot_ip', default='')
@@ -42,18 +42,6 @@ def launch_setup(context, *args, **kwargs):
     attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
     attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
 
-    add_other_geometry = LaunchConfiguration('add_other_geometry', default=False)
-    geometry_type = LaunchConfiguration('geometry_type', default='box')
-    geometry_mass = LaunchConfiguration('geometry_mass', default=0.1)
-    geometry_height = LaunchConfiguration('geometry_height', default=0.1)
-    geometry_radius = LaunchConfiguration('geometry_radius', default=0.1)
-    geometry_length = LaunchConfiguration('geometry_length', default=0.1)
-    geometry_width = LaunchConfiguration('geometry_width', default=0.1)
-    geometry_mesh_filename = LaunchConfiguration('geometry_mesh_filename', default='')
-    geometry_mesh_origin_xyz = LaunchConfiguration('geometry_mesh_origin_xyz', default='"0 0 0"')
-    geometry_mesh_origin_rpy = LaunchConfiguration('geometry_mesh_origin_rpy', default='"0 0 0"')
-    geometry_mesh_tcp_xyz = LaunchConfiguration('geometry_mesh_tcp_xyz', default='"0 0 0"')
-    geometry_mesh_tcp_rpy = LaunchConfiguration('geometry_mesh_tcp_rpy', default='"0 0 0"')
 
     kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
 
@@ -72,12 +60,10 @@ def launch_setup(context, *args, **kwargs):
 
     # robot_description
     # xarm_description/launch/lib/robot_description_lib.py
-    mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory('xarm_description'), 'launch', 'lib', 'robot_description_lib.py'))
-    get_xacro_file_content = getattr(mod, 'get_xacro_file_content')
     robot_description = {
-        'robot_description': get_xacro_file_content(
+        'robot_description': get_xacro_command(
             xacro_file=xacro_file, 
-            arguments={
+            mappings={
                 'prefix': prefix,
                 'hw_ns': hw_ns.perform(context).strip('/'),
                 'limited': limited,
@@ -97,18 +83,6 @@ def launch_setup(context, *args, **kwargs):
                 'attach_to': attach_to,
                 'attach_xyz': attach_xyz,
                 'attach_rpy': attach_rpy,
-                'add_other_geometry': add_other_geometry,
-                'geometry_type': geometry_type,
-                'geometry_mass': geometry_mass,
-                'geometry_height': geometry_height,
-                'geometry_radius': geometry_radius,
-                'geometry_length': geometry_length,
-                'geometry_width': geometry_width,
-                'geometry_mesh_filename': geometry_mesh_filename,
-                'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-                'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-                'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-                'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
                 'kinematics_suffix': kinematics_suffix,
                 'robot_ip': robot_ip,
                 'report_type': report_type,

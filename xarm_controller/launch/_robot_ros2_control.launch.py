@@ -41,18 +41,6 @@ def launch_setup(context, *args, **kwargs):
     attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
     attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
 
-    add_other_geometry = LaunchConfiguration('add_other_geometry', default=False)
-    geometry_type = LaunchConfiguration('geometry_type', default='box')
-    geometry_mass = LaunchConfiguration('geometry_mass', default=0.1)
-    geometry_height = LaunchConfiguration('geometry_height', default=0.1)
-    geometry_radius = LaunchConfiguration('geometry_radius', default=0.1)
-    geometry_length = LaunchConfiguration('geometry_length', default=0.1)
-    geometry_width = LaunchConfiguration('geometry_width', default=0.1)
-    geometry_mesh_filename = LaunchConfiguration('geometry_mesh_filename', default='')
-    geometry_mesh_origin_xyz = LaunchConfiguration('geometry_mesh_origin_xyz', default='"0 0 0"')
-    geometry_mesh_origin_rpy = LaunchConfiguration('geometry_mesh_origin_rpy', default='"0 0 0"')
-    geometry_mesh_tcp_xyz = LaunchConfiguration('geometry_mesh_tcp_xyz', default='"0 0 0"')
-    geometry_mesh_tcp_rpy = LaunchConfiguration('geometry_mesh_tcp_rpy', default='"0 0 0"')
 
     kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
 
@@ -95,18 +83,6 @@ def launch_setup(context, *args, **kwargs):
             'attach_to': attach_to,
             'attach_xyz': attach_xyz,
             'attach_rpy': attach_rpy,
-            'add_other_geometry': add_other_geometry,
-            'geometry_type': geometry_type,
-            'geometry_mass': geometry_mass,
-            'geometry_height': geometry_height,
-            'geometry_radius': geometry_radius,
-            'geometry_length': geometry_length,
-            'geometry_width': geometry_width,
-            'geometry_mesh_filename': geometry_mesh_filename,
-            'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-            'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-            'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-            'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
             'kinematics_suffix': kinematics_suffix,
         }.items(),
     )
@@ -134,18 +110,6 @@ def launch_setup(context, *args, **kwargs):
             'attach_to': attach_to,
             'attach_xyz': attach_xyz,
             'attach_rpy': attach_rpy,
-            'add_other_geometry': add_other_geometry,
-            'geometry_type': geometry_type,
-            'geometry_mass': geometry_mass,
-            'geometry_height': geometry_height,
-            'geometry_radius': geometry_radius,
-            'geometry_length': geometry_length,
-            'geometry_width': geometry_width,
-            'geometry_mesh_filename': geometry_mesh_filename,
-            'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-            'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-            'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-            'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
             'kinematics_suffix': kinematics_suffix,
             'robot_ip': robot_ip,
             'report_type': report_type,
