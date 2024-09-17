@@ -286,7 +286,7 @@
       <xacro:property name="new_ros2_control_params" value="${ros2_control_params}"/>
     </xacro:if>
     <xacro:unless value="${ros2_control_params != ''}">
-      <xacro:property name="new_ros2_control_params" value="${find xarm_controller/config/${robot_name}_controllers.yaml}" />
+      <xacro:property name="new_ros2_control_params" value="$(find xarm_controller)/config/${robot_name}_controllers.yaml" />
     </xacro:unless>
 
     <!-- Detect whether to use ignition or classic -->
