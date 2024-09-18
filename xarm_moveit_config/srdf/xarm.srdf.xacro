@@ -2,15 +2,64 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="UF_ROBOT">
   <!-- parameters -->
   <xacro:arg name="prefix" default="" />
-  <xacro:arg name="dof" default="7" />
-  <xacro:arg name="robot_type" default="xarm" />
-  <xacro:arg name="add_gripper" default="false"/>
-  <xacro:arg name="add_vacuum_gripper" default="false" />
-  <xacro:arg name="add_bio_gripper" default="false" />
-  <xacro:arg name="add_other_geometry" default="false" />
+
+  <!-- Robot spec -->
+  <xacro:arg 
+    name="robot_spec_config_file"
+    default="$(find xarm_description)/config/default_urdf_arguments/xarm6.yaml"
+  />
+
+  <xacro:property
+    name="robot_spec_config_file"
+    value="$(arg robot_spec_config_file)"
+  />
+
+  <xacro:property 
+    name="robot_spec" 
+    value="${xacro.load_yaml(robot_spec_config_file)}" />
+
+
+  <!-- End effector -->
+  <xacro:arg
+    name="end_effector_config_file"
+    default="$(find xarm_description)/config/default_urdf_arguments/end_effector.yaml"
+  />
+
+  <xacro:property 
+    name="end_effector_config_file"
+    value="$(arg end_effector_config_file)"
+  />
+
+  <xacro:property 
+    name="add_end_effector" 
+    value="${xacro.load_yaml(end_effector_config_file)}" 
+  />
+
+  <!-- Other geometry -->
+  <xacro:arg
+    name="other_geometry_config_file"
+    default="$(find xarm_description)/config/default_urdf_arguments/other_geometry.yaml" 
+  />
+
+  <xacro:property
+    name="other_geometry_config_file"
+    value="$(arg other_geometry_config_file)"
+  />
+
+  <xacro:property name="other_geometry"
+    value="${xacro.load_yaml(other_geometry_config_file)}"
+  />
 
   <xacro:include filename="$(find xarm_moveit_config)/srdf/xarm_macro.srdf.xacro" />
-  <xacro:xarm_macro_srdf prefix="$(arg prefix)" dof="$(arg dof)" robot_type="$(arg robot_type)" 
-    add_gripper="$(arg add_gripper)" add_vacuum_gripper="$(arg add_vacuum_gripper)" add_bio_gripper="$(arg add_bio_gripper)" add_other_geometry="$(arg add_other_geometry)" />
+
+  <xacro:xarm_macro_srdf 
+    prefix="$(arg prefix)" 
+    dof="${robot_spec['dof']}" 
+    robot_type="${robot_spec['robot_type']}" 
+    add_gripper="${add_end_effector['gripper']}" 
+    add_vacuum_gripper="${add_end_effector['vacuum_gripper']}" 
+    add_bio_gripper="${add_end_effector['bio_gripper']}" 
+    add_other_geometry="${other_geometry['add']}" 
+  />
 
 </robot>
