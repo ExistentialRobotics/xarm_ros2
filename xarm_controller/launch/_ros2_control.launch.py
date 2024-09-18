@@ -17,23 +17,11 @@ from launch_ros.substitutions import FindPackageShare
 from uf_ros_lib.uf_robot_utils import get_xacro_command
 
 def launch_setup(context, *args, **kwargs):
-    robot_ip = LaunchConfiguration('robot_ip', default='')
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
+
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotSystemHardware')
     xacro_file = LaunchConfiguration('xacro_file', default=PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'xarm_device.urdf.xacro']))
-
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
-    model1300 = LaunchConfiguration('model1300', default=False)
-    robot_sn = LaunchConfiguration('robot_sn', default='')
-    attach_to = LaunchConfiguration('attach_to', default='world')
-    attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
-    attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
-
-
-    kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
 
     # ros2 control params
     # xarm_controller/launch/lib/robot_controller_lib.py
@@ -42,10 +30,10 @@ def launch_setup(context, *args, **kwargs):
     ros2_control_params = generate_ros2_control_params_temp_file(
         os.path.join(get_package_share_directory('xarm_controller'), 'config', '{}{}_controllers.yaml'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')),
         prefix=prefix.perform(context), 
-        add_gripper=add_gripper.perform(context) in ('True', 'true'),
-        add_bio_gripper=add_bio_gripper.perform(context) in ('True', 'true'),
+        add_gripper=False,
+        add_bio_gripper=False,
         ros_namespace=LaunchConfiguration('ros_namespace', default='').perform(context),
-        robot_type=robot_type.perform(context)
+        robot_type='xarm'
     )
 
     # robot_description
@@ -56,28 +44,8 @@ def launch_setup(context, *args, **kwargs):
             mappings={
                 'prefix': prefix,
                 'hw_ns': hw_ns.perform(context).strip('/'),
-                'limited': limited,
-                'effort_control': effort_control,
-                'velocity_control': velocity_control,
-                'add_gripper': add_gripper,
-                'add_vacuum_gripper': add_vacuum_gripper,
-                'add_bio_gripper': add_bio_gripper,
-                'dof': dof,
-                'robot_type': robot_type,
                 'ros2_control_plugin': ros2_control_plugin,
                 'ros2_control_params': ros2_control_params,
-                'add_realsense_d435i': add_realsense_d435i,
-                'add_d435i_links': add_d435i_links,
-                'model1300': model1300,
-                'robot_sn': robot_sn,
-                'attach_to': attach_to,
-                'attach_xyz': attach_xyz,
-                'attach_rpy': attach_rpy,
-                'kinematics_suffix': kinematics_suffix,
-                'robot_ip': robot_ip,
-                'report_type': report_type,
-                'baud_checkset': baud_checkset,
-                'default_gripper_baud': default_gripper_baud,
             }
         )
     }
