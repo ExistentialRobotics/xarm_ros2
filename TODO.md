@@ -1,0 +1,4 @@
+- Create environment variable for robot name and for URDF configuration file. 
+- Moved end effector configurations to a file. 
+- Add grippers to controller yaml files anyway. They will fail to load if not present in URDF
+- SRDF correctness
