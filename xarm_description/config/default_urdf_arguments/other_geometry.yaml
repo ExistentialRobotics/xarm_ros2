@@ -1,0 +1,13 @@
+# other geometry
+add: "false"
+type: 'box'
+mass: '0.1'
+radius: '0.1'
+height: '0.1' 
+length: '0.1'
+width: '0.1'
+mesh_filename: ''
+mesh_origin_xyz: '0 0 0'
+mesh_origin_rpy: '0 0 0'
+mesh_tcp_xyz: '0 0 0'
+mesh_tcp_rpy: '0 0 0' 

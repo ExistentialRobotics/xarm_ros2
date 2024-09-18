@@ -1,0 +1,6 @@
+# end-effector
+gripper: false
+vacuum_gripper: false
+bio_gripper: false
+realsense_d435i: false
+d435i_links: true
