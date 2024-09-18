@@ -18,18 +18,8 @@ from uf_ros_lib.uf_robot_utils import get_xacro_command
 
 def launch_setup(context, *args, **kwargs):
     robot_ip = LaunchConfiguration('robot_ip', default='')
-    report_type = LaunchConfiguration('report_type', default='normal')
-    baud_checkset = LaunchConfiguration('baud_checkset', default=True)
-    default_gripper_baud = LaunchConfiguration('default_gripper_baud', default=2000000)
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=False)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
-    add_gripper = LaunchConfiguration('add_gripper', default=False)
-    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
-    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-    dof = LaunchConfiguration('dof', default=7)
     robot_type = LaunchConfiguration('robot_type', default='xarm')
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotSystemHardware')
     xacro_file = LaunchConfiguration('xacro_file', default=PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'xarm_device.urdf.xacro']))
