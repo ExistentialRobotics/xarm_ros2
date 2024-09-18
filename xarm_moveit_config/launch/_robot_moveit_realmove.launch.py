@@ -14,35 +14,18 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
 
-def launch_setup(context, *args, **kwargs):
-    robot_ip = LaunchConfiguration('robot_ip')
-    report_type = LaunchConfiguration('report_type', default='normal')
+def generate_launch_description():
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=True)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
-    add_gripper = LaunchConfiguration('add_gripper', default=False)
-    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
-    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-    dof = LaunchConfiguration('dof', default=7)
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
     no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
-
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    model1300 = LaunchConfiguration('model1300', default=False)
-
-    kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
-
-    baud_checkset = LaunchConfiguration('baud_checkset', default=True)
-    default_gripper_baud = LaunchConfiguration('default_gripper_baud', default=2000000)
 
     ros2_control_plugin = 'uf_robot_hardware/UFRobotSystemHardware'
     controllers_name = 'controllers'
     moveit_controller_manager_key = 'moveit_simple_controller_manager'
     moveit_controller_manager_value = 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
-    xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
-    ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
+    # xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
+    xarm_type = 'xarm6' #TODO - fix
+    ros_namespace = LaunchConfiguration('ros_namespace', default='')
 
     # # robot driver launch
     # # xarm_api/launch/_robot_driver.launch.py
@@ -68,19 +51,8 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             'prefix': prefix,
             'hw_ns': hw_ns,
-            'limited': limited,
-            'effort_control': effort_control,
-            'velocity_control': velocity_control,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'dof': dof,
-            'robot_type': robot_type,
             'ros2_control_plugin': ros2_control_plugin,
             'joint_states_remapping': PathJoinSubstitution(['/', ros_namespace, hw_ns, 'joint_states']),
-            'add_realsense_d435i': add_realsense_d435i,
-            'model1300': model1300,
-            'kinematics_suffix': kinematics_suffix,
         }.items(),
     )
 
@@ -91,23 +63,12 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             'prefix': prefix,
             'hw_ns': hw_ns,
-            'limited': limited,
-            'effort_control': effort_control,
-            'velocity_control': velocity_control,
-            'add_gripper': add_gripper,
             # 'add_gripper': add_gripper if robot_type.perform(context) == 'xarm' else 'false',
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'dof': dof,
-            'robot_type': robot_type,
             'no_gui_ctrl': no_gui_ctrl,
             'ros2_control_plugin': ros2_control_plugin,
             'controllers_name': controllers_name,
             'moveit_controller_manager_key': moveit_controller_manager_key,
             'moveit_controller_manager_value': moveit_controller_manager_value,
-            'add_realsense_d435i': add_realsense_d435i,
-            'model1300': model1300,
-            'kinematics_suffix': kinematics_suffix,
         }.items(),
     )
 
@@ -117,9 +78,9 @@ def launch_setup(context, *args, **kwargs):
         executable='joint_state_publisher',
         name='joint_state_publisher',
         output='screen',
-        parameters=[{'source_list': ['{}{}/joint_states'.format(prefix.perform(context), hw_ns.perform(context))]}],
+        parameters=[{'source_list': [f'{prefix}{hw_ns}/joint_states']}],
         remappings=[
-            ('follow_joint_trajectory', '{}{}_traj_controller/follow_joint_trajectory'.format(prefix.perform(context), xarm_type)),
+            ('follow_joint_trajectory', f'{prefix}{xarm_type}_traj_controller/follow_joint_trajectory'),
         ],
     )
 
@@ -128,24 +89,9 @@ def launch_setup(context, *args, **kwargs):
     ros2_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('xarm_controller'), 'launch', '_ros2_control.launch.py'])),
         launch_arguments={
-            'robot_ip': robot_ip,
-            'report_type': report_type,
-            'baud_checkset': baud_checkset,
-            'default_gripper_baud': default_gripper_baud,
             'prefix': prefix,
             'hw_ns': hw_ns,
-            'limited': limited,
-            'effort_control': effort_control,
-            'velocity_control': velocity_control,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'dof': dof,
-            'robot_type': robot_type,
             'ros2_control_plugin': ros2_control_plugin,
-            'add_realsense_d435i': add_realsense_d435i,
-            'model1300': model1300,
-            'kinematics_suffix': kinematics_suffix,
         }.items(),
     )
 
@@ -154,19 +100,19 @@ def launch_setup(context, *args, **kwargs):
         executable='spawner',
         output='screen',
         arguments=[
-            '{}{}_traj_controller'.format(prefix.perform(context), xarm_type),
+            f'{prefix}{xarm_type}_traj_controller',
             '--controller-manager', '{}/controller_manager'.format(ros_namespace)
         ],
     )
 
-    return [
+    return LaunchDescription([
         robot_description_launch,
         robot_moveit_common_launch,
         joint_state_publisher_node,
         ros2_control_launch,
         control_node,
         # robot_driver_launch,
-    ]
+    ])
 
 
 def generate_launch_description():
