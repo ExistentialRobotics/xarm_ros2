@@ -1,5 +1,4 @@
-- SRDF correctness with yaml files
-- Create environment variable for robot name and for URDF configuration file. 
-- Add grippers to controller yaml files anyway. They will fail to load if not present in URDF
 - URDF generation includes ROS2 control params by default?
+- Create environment variable for robot name and for URDF configuration file. 
 - Moved end effector configurations to a file. 
+- Remove python_launch_as_module calls
