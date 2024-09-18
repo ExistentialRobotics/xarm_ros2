@@ -2,7 +2,7 @@
 # hw_ns: 'xarm' # changes at runtime
 # ros2_control_plugin: 'uf_robot_hardware/UFRobotSystemHardware' # changes at runtime
 # ros2_control_params: '' # changes at runtime
-# robot_ip: '' # changes at runtime
+robot_ip: ''
 dof: 6
 robot_type: 'xarm'
 report_type: 'normal'
@@ -14,25 +14,6 @@ robot_sn: ''
 limited: false
 effort_control: false 
 velocity_control: false
-# end-effector
-add_gripper: false
-add_vacuum_gripper: false
-add_bio_gripper: false
-add_realsense_d435i: false
-add_d435i_links: true
-# other geometry
-add_other_geometry: false 
-geometry_type: 'box'
-geometry_mass: '0.1'
-geometry_radius: '0.1'
-geometry_height: '0.1' 
-geometry_length: '0.1'
-geometry_width: '0.1'
-geometry_mesh_filename: ''
-geometry_mesh_origin_xyz: '0 0 0'
-geometry_mesh_origin_rpy: '0 0 0'
-geometry_mesh_tcp_xyz: '0 0 0'
-geometry_mesh_tcp_rpy: '0 0 0' 
 # urdf-related
 attach_to: 'world'
 attach_xyz: '0 0 0'
