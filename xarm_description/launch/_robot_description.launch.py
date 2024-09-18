@@ -18,29 +18,11 @@ from launch_ros.substitutions import FindPackageShare
 from uf_ros_lib.uf_robot_utils import get_xacro_command
 
 def launch_setup(context, *args, **kwargs):
-    prefix = LaunchConfiguration('prefix', default='')
-    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=False)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
-    add_gripper = LaunchConfiguration('add_gripper', default=False)
-    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
-    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-    dof = LaunchConfiguration('dof', default=7)
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
-    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotSystemHardware')
-    joint_states_remapping = LaunchConfiguration('joint_states_remapping', default='joint_states')
     xacro_file = LaunchConfiguration('xacro_file', default=PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'xarm_device.urdf.xacro']))
 
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
-    model1300 = LaunchConfiguration('model1300', default=False)
-    robot_sn = LaunchConfiguration('robot_sn', default='')
-    attach_to = LaunchConfiguration('attach_to', default='world')
-    attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
-    attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
-
-    kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
+    prefix = LaunchConfiguration('prefix', default='')
+    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
+    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotSystemHardware')
 
     # robot_description
     # xarm_description/launch/lib/robot_description_lib.py
@@ -50,23 +32,8 @@ def launch_setup(context, *args, **kwargs):
             mappings={
                 'prefix': prefix,
                 'hw_ns': hw_ns.perform(context).strip('/'),
-                'limited': limited,
-                'effort_control': effort_control,
-                'velocity_control': velocity_control,
-                'add_gripper': add_gripper,
-                'add_vacuum_gripper': add_vacuum_gripper,
-                'add_bio_gripper': add_bio_gripper,
-                'dof': dof,
-                'robot_type': robot_type,
                 'ros2_control_plugin': ros2_control_plugin,
-                'add_realsense_d435i': add_realsense_d435i,
-                'add_d435i_links': add_d435i_links,
-                'model1300': model1300,
-                'robot_sn': robot_sn,
-                'attach_to': attach_to,
-                'attach_xyz': attach_xyz,
-                'attach_rpy': attach_rpy,
-                'kinematics_suffix': kinematics_suffix,
+                'ros2_control_params': ""
             }
         )
     }
