@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 import os
+import xacro
 from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import load_python_launch_file_as_module
 from launch import LaunchDescription
@@ -17,6 +12,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
 from launch.actions import OpaqueFunction
+from launch.actions import TimerAction
 
 def get_robot_name(
     robot_type,
@@ -137,41 +133,39 @@ def build_robot_description(
 
     return robot_description
 
+def build_camera_description(this_robot_namespace=""):
+    mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory('xarm_description'), 'launch', 'lib', 'robot_description_lib.py'))
+    get_xacro_file_content = getattr(mod, 'get_xacro_file_content')
+    robot_description = {
+    'robot_description': get_xacro_file_content(
+        xacro_file=PathJoinSubstitution([FindPackageShare('main'), 'urdf','camera', 'sensor_d455.urdf.xacro']), 
+        arguments={
+            'prefix': this_robot_namespace,
+        }
+    ),
+}
+
+    return robot_description
+
 def launch_setup(context, *args, **kwargs):
     dof = LaunchConfiguration('dof', default=7)
     robot_type = LaunchConfiguration('robot_type', default='xarm')        
-
     load_controller = LaunchConfiguration('load_controller', default=True)
     add_gripper = LaunchConfiguration('add_gripper', default=False)
     add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
     add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-
     num_robots = LaunchConfiguration('num_robots', default=1)
+    world_sdf_path = os.path.join(get_package_share_directory('main'),'world','world.sdf') # Path to your world file
+    camera_namespace = LaunchConfiguration('camera_namespace', default="camera_01")
 
-    # ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
-
-    # gazebo launch
-    # gazebo_ros/launch/gazebo.launch.py
-    xarm_gazebo_world = PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'worlds', 'table.world'])
+    # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': ''
+            'gz_args': f'-r {world_sdf_path}',  # Load the world file with Gazebo directly
         }.items(),
     )
 
-    spawn_world = Node(
-        package="ros_gz_sim",
-        executable="create",
-        output='screen',
-        arguments=[
-            '-file', 'https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table',
-            '-y', '-0.84'
-        ],
-        parameters=[{'use_sim_time': True}],
-    )
-
-    # 
     # ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
     clock_parameter_bridge = Node(
         package="ros_gz_bridge",
@@ -182,7 +176,40 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
-    nodes_to_launch = [gazebo_launch, spawn_world, clock_parameter_bridge]
+    robot_description = build_camera_description(this_robot_namespace = camera_namespace)
+
+    robot_state_publisher_node_camera = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace=camera_namespace,
+        parameters=[robot_description]
+    )
+    
+    gazebo_spawn_camera_node = Node(
+        package="ros_gz_sim",
+        executable="create",
+        namespace=camera_namespace,
+        output='screen',
+        arguments=[
+            '-topic', 'robot_description',
+            '-allow_renaming', 'false',
+            '-x', '0.2',  # Corrected: Added missing commas
+            '-y', '0.7',
+            '-z', '1.2',
+            '-P', '0',
+            '-Y', '-1.8',
+            '-timeout', '10000'
+        ],
+        parameters=[{'use_sim_time': True}],
+    )
+
+    delayed_spawn = TimerAction(
+        period=2.0,
+        actions=[gazebo_spawn_camera_node]
+    )
+    
+    nodes_to_launch = [gazebo_launch, clock_parameter_bridge, robot_state_publisher_node_camera, delayed_spawn]
     last_spawn_entity = None 
 
     for robot_idx in range(int(num_robots.perform(context))):
@@ -190,7 +217,6 @@ def launch_setup(context, *args, **kwargs):
         this_robot_prefix = f"{this_robot_namespace}_"
         # this_robot_namespace=""
         # this_robot_prefix=""
-
 
         robot_description = build_robot_description(
             context, 
@@ -217,9 +243,7 @@ def launch_setup(context, *args, **kwargs):
             namespace=this_robot_namespace
         )
 
-        nodes_to_launch.append(
-            robot_state_publisher_node            
-        )
+        nodes_to_launch.append(robot_state_publisher_node)
 
         # gazebo spawn entity node
         gazebo_spawn_entity_node = Node(
@@ -232,8 +256,8 @@ def launch_setup(context, *args, **kwargs):
                 # '-entity', '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
                 # '-entity', f'{this_robot_namespace}_robot',
                 '-allow_renaming', 'false',
-                '-x', str(-0.4 + robot_idx * 0.4),
-                '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.5',
+                '-x', str(-0.1 + robot_idx * 0.4),
+                '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.3',
                 '-z', '1.021',
                 '-Y', '1.571',
                 '-timeout', '10000',
@@ -307,7 +331,6 @@ def launch_setup(context, *args, **kwargs):
             )
 
     return nodes_to_launch
-
 
 def generate_launch_description():
     return LaunchDescription([
