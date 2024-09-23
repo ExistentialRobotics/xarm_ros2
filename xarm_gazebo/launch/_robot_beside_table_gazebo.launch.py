@@ -12,6 +12,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
 from launch.actions import OpaqueFunction
+from launch.actions import TimerAction
 
 def get_robot_name(
     robot_type,
@@ -132,21 +133,19 @@ def build_robot_description(
 
     return robot_description
 
-def build_camera_description(context, this_robot_prefix="", this_robot_namespace=""):
-    # Define the path to the camera xacro file
-    camera_xacro_path = PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'camera', 'camera.gazebo.xacro'
-    ]).perform(context)
+def build_camera_description(this_robot_namespace=""):
+    mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory('xarm_description'), 'launch', 'lib', 'robot_description_lib.py'))
+    get_xacro_file_content = getattr(mod, 'get_xacro_file_content')
+    robot_description = {
+    'robot_description': get_xacro_file_content(
+        xacro_file=PathJoinSubstitution([FindPackageShare('main'), 'urdf','camera', 'sensor_d455.urdf.xacro']), 
+        arguments={
+            'prefix': this_robot_namespace,
+        }
+    ),
+}
 
-    # Use xacro to process the xacro file
-    doc = xacro.process_file(camera_xacro_path)
-    camera_description_xml = doc.toprettyxml(indent='  ')
-
-    # Return the camera description in the required format
-    camera_description = {
-        'camera_description': camera_description_xml
-    }
-
-    return camera_description
+    return robot_description
 
 def launch_setup(context, *args, **kwargs):
     dof = LaunchConfiguration('dof', default=7)
@@ -156,20 +155,8 @@ def launch_setup(context, *args, **kwargs):
     add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
     add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
     num_robots = LaunchConfiguration('num_robots', default=1)
-
-    # ros_namespace = LaunchConfiguration('ros_namespace', default='').perform(context)
-
-    # gazebo launch
-    # gazebo_ros/launch/gazebo.launch.py
-    # xarm_gazebo_world = PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'worlds', 'table.world'])
-    # gazebo_launch = IncludeLaunchDescription(PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
-    #     launch_arguments={
-    #         'gz_args': ''
-    #     }.items(),
-    # )
-
-    # Path to your world file
-    world_sdf_path = os.path.join(get_package_share_directory('main'),'world','world.sdf')
+    world_sdf_path = os.path.join(get_package_share_directory('main'),'world','world.sdf') # Path to your world file
+    camera_namespace = LaunchConfiguration('camera_namespace', default="camera_01")
 
     # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
@@ -189,36 +176,40 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
-    # # Camera launch
-    # camera_description = build_camera_description(context, this_robot_prefix="camera_01", this_robot_namespace=this_robot_namespace)
+    robot_description = build_camera_description(this_robot_namespace = camera_namespace)
 
-    # camera_state_publisher_node = Node(
-    #     package='robot_state_publisher',
-    #     executable='robot_state_publisher',
-    #     output='screen',
-    #     parameters=[{'use_sim_time': True}, camera_description],
-    #     namespace=this_robot_namespace
-    # )
+    robot_state_publisher_node_camera = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace=camera_namespace,
+        parameters=[robot_description]
+    )
+    
+    gazebo_spawn_camera_node = Node(
+        package="ros_gz_sim",
+        executable="create",
+        namespace=camera_namespace,
+        output='screen',
+        arguments=[
+            '-topic', 'robot_description',
+            '-allow_renaming', 'false',
+            '-x', '0.2',  # Corrected: Added missing commas
+            '-y', '0.7',
+            '-z', '1.2',
+            '-P', '0',
+            '-Y', '-1.8',
+            '-timeout', '10000'
+        ],
+        parameters=[{'use_sim_time': True}],
+    )
 
-    # gazebo_spawn_camera_node = Node(
-    #     package="ros_gz_sim",
-    #     executable="create",
-    #     namespace=this_robot_namespace,
-    #     output='screen',
-    #     arguments=[
-    #         '-topic', 'camera_description',
-    #         '-allow_renaming', 'false',
-    #         '-x', '0.4',
-    #         '-y', '-0.54',
-    #         '-z', '1.021',
-    #         '-R', '-1.571', '-P', '0', '-Y', '1.571'
-    #     ],
-    #     parameters=[{'use_sim_time': True}],
-    # )
-
-    nodes_to_launch = [gazebo_launch, clock_parameter_bridge]
-    # nodes_to_launch.append(camera_state_publisher_node)
-    # nodes_to_launch.append(gazebo_spawn_camera_node)  
+    delayed_spawn = TimerAction(
+        period=2.0,
+        actions=[gazebo_spawn_camera_node]
+    )
+    
+    nodes_to_launch = [gazebo_launch, clock_parameter_bridge, robot_state_publisher_node_camera, delayed_spawn]
     last_spawn_entity = None 
 
     for robot_idx in range(int(num_robots.perform(context))):
@@ -226,7 +217,6 @@ def launch_setup(context, *args, **kwargs):
         this_robot_prefix = f"{this_robot_namespace}_"
         # this_robot_namespace=""
         # this_robot_prefix=""
-
 
         robot_description = build_robot_description(
             context, 
@@ -266,8 +256,8 @@ def launch_setup(context, *args, **kwargs):
                 # '-entity', '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else ''),
                 # '-entity', f'{this_robot_namespace}_robot',
                 '-allow_renaming', 'false',
-                '-x', str(-0.4 + robot_idx * 0.4),
-                '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.5',
+                '-x', str(-0.1 + robot_idx * 0.4),
+                '-y', '-0.54' if robot_type.perform(context) == 'uf850' else '-0.3',
                 '-z', '1.021',
                 '-Y', '1.571',
                 '-timeout', '10000',
