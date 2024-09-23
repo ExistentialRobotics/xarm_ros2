@@ -22,48 +22,19 @@ from launch.events import Shutdown
 def launch_setup(context, *args, **kwargs):
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=True)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
-    add_gripper = LaunchConfiguration('add_gripper', default=False)
-    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
-    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
-    dof = LaunchConfiguration('dof', default=7)
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
-    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
+    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
+
     controllers_name = LaunchConfiguration('controllers_name', default='fake_controllers')
     moveit_controller_manager_key = LaunchConfiguration('moveit_controller_manager_key', default='moveit_fake_controller_manager')
     moveit_controller_manager_value = LaunchConfiguration('moveit_controller_manager_value', default='moveit_fake_controller_manager/MoveItFakeControllerManager')
 
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
-    model1300 = LaunchConfiguration('model1300', default=False)
-
-    attach_to = LaunchConfiguration('attach_to', default='world')
-    attach_xyz = LaunchConfiguration('attach_xyz', default='"0 0 0"')
-    attach_rpy = LaunchConfiguration('attach_rpy', default='"0 0 0"')
-
-    add_other_geometry = LaunchConfiguration('add_other_geometry', default=False)
-    geometry_type = LaunchConfiguration('geometry_type', default='box')
-    geometry_mass = LaunchConfiguration('geometry_mass', default=0.1)
-    geometry_height = LaunchConfiguration('geometry_height', default=0.1)
-    geometry_radius = LaunchConfiguration('geometry_radius', default=0.1)
-    geometry_length = LaunchConfiguration('geometry_length', default=0.1)
-    geometry_width = LaunchConfiguration('geometry_width', default=0.1)
-    geometry_mesh_filename = LaunchConfiguration('geometry_mesh_filename', default='')
-    geometry_mesh_origin_xyz = LaunchConfiguration('geometry_mesh_origin_xyz', default='"0 0 0"')
-    geometry_mesh_origin_rpy = LaunchConfiguration('geometry_mesh_origin_rpy', default='"0 0 0"')
-    geometry_mesh_tcp_xyz = LaunchConfiguration('geometry_mesh_tcp_xyz', default='"0 0 0"')
-    geometry_mesh_tcp_rpy = LaunchConfiguration('geometry_mesh_tcp_rpy', default='"0 0 0"')
-
-    kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
-
     use_sim_time = LaunchConfiguration('use_sim_time', default=False)
 
     moveit_config_package_name = 'xarm_moveit_config'
-    xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
-
+    # xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
+    xarm_type='xarm6' #TODO: fix
+    
     # robot_description_parameters
     # xarm_moveit_config/launch/lib/robot_moveit_config_lib.py
     mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory(moveit_config_package_name), 'launch', 'lib', 'robot_moveit_config_lib.py'))
@@ -74,43 +45,15 @@ def launch_setup(context, *args, **kwargs):
         urdf_arguments={
             'prefix': prefix,
             'hw_ns': hw_ns.perform(context).strip('/'),
-            'limited': limited,
-            'effort_control': effort_control,
-            'velocity_control': velocity_control,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'dof': dof,
-            'robot_type': robot_type,
             'ros2_control_plugin': ros2_control_plugin,
-            'add_realsense_d435i': add_realsense_d435i,
-            'add_d435i_links': add_d435i_links,
-            'model1300': model1300,
-            'attach_to': attach_to,
-            'attach_xyz': attach_xyz,
-            'attach_rpy': attach_rpy,
-            'add_other_geometry': add_other_geometry,
-            'geometry_type': geometry_type,
-            'geometry_mass': geometry_mass,
-            'geometry_height': geometry_height,
-            'geometry_radius': geometry_radius,
-            'geometry_length': geometry_length,
-            'geometry_width': geometry_width,
-            'geometry_mesh_filename': geometry_mesh_filename,
-            'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-            'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-            'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-            'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
-            'kinematics_suffix': kinematics_suffix,
         },
         srdf_arguments={
             'prefix': prefix,
-            'dof': dof,
-            'robot_type': robot_type,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'add_other_geometry': add_other_geometry,
+            # 'dof': dof,
+            # 'robot_type': robot_type,
+            # 'add_gripper': add_gripper,
+            # 'add_vacuum_gripper': add_vacuum_gripper,
+            # 'add_bio_gripper': add_bio_gripper, # TODO: fix
         },
         arguments={
             'context': context,
@@ -124,36 +67,36 @@ def launch_setup(context, *args, **kwargs):
     kinematics_yaml = robot_description_parameters['robot_description_kinematics']
     joint_limits_yaml = robot_description_parameters.get('robot_description_planning', None)
 
-    if add_gripper.perform(context) in ('True', 'true'):
-        gripper_controllers_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), '{}.yaml'.format(controllers_name.perform(context)))
-        gripper_ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), 'ompl_planning.yaml')
-        gripper_joint_limits_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), 'joint_limits.yaml')
+    # if add_gripper.perform(context) in ('True', 'true'):
+    #     gripper_controllers_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), '{}.yaml'.format(controllers_name.perform(context)))
+    #     gripper_ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), 'ompl_planning.yaml')
+    #     gripper_joint_limits_yaml = load_yaml(moveit_config_package_name, 'config', '{}_gripper'.format(robot_type.perform(context)), 'joint_limits.yaml')
 
-        if gripper_controllers_yaml and 'controller_names' in gripper_controllers_yaml:
-            for name in gripper_controllers_yaml['controller_names']:
-                if name in gripper_controllers_yaml:
-                    if name not in controllers_yaml['controller_names']:
-                        controllers_yaml['controller_names'].append(name)
-                    controllers_yaml[name] = gripper_controllers_yaml[name]
-        if gripper_ompl_planning_yaml:
-            ompl_planning_yaml.update(gripper_ompl_planning_yaml)
-        if joint_limits_yaml and gripper_joint_limits_yaml:
-            joint_limits_yaml['joint_limits'].update(gripper_joint_limits_yaml['joint_limits'])
-    elif add_bio_gripper.perform(context) in ('True', 'true'):
-        gripper_controllers_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', '{}.yaml'.format(controllers_name.perform(context)))
-        gripper_ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', 'ompl_planning.yaml')
-        gripper_joint_limits_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', 'joint_limits.yaml')
+    #     if gripper_controllers_yaml and 'controller_names' in gripper_controllers_yaml:
+    #         for name in gripper_controllers_yaml['controller_names']:
+    #             if name in gripper_controllers_yaml:
+    #                 if name not in controllers_yaml['controller_names']:
+    #                     controllers_yaml['controller_names'].append(name)
+    #                 controllers_yaml[name] = gripper_controllers_yaml[name]
+    #     if gripper_ompl_planning_yaml:
+    #         ompl_planning_yaml.update(gripper_ompl_planning_yaml)
+    #     if joint_limits_yaml and gripper_joint_limits_yaml:
+    #         joint_limits_yaml['joint_limits'].update(gripper_joint_limits_yaml['joint_limits'])
+    # elif add_bio_gripper.perform(context) in ('True', 'true'):
+    #     gripper_controllers_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', '{}.yaml'.format(controllers_name.perform(context)))
+    #     gripper_ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', 'ompl_planning.yaml')
+    #     gripper_joint_limits_yaml = load_yaml(moveit_config_package_name, 'config', 'bio_gripper', 'joint_limits.yaml')
 
-        if gripper_controllers_yaml and 'controller_names' in gripper_controllers_yaml:
-            for name in gripper_controllers_yaml['controller_names']:
-                if name in gripper_controllers_yaml:
-                    if name not in controllers_yaml['controller_names']:
-                        controllers_yaml['controller_names'].append(name)
-                    controllers_yaml[name] = gripper_controllers_yaml[name]
-        if gripper_ompl_planning_yaml:
-            ompl_planning_yaml.update(gripper_ompl_planning_yaml)
-        if joint_limits_yaml and gripper_joint_limits_yaml:
-            joint_limits_yaml['joint_limits'].update(gripper_joint_limits_yaml['joint_limits'])
+    #     if gripper_controllers_yaml and 'controller_names' in gripper_controllers_yaml:
+    #         for name in gripper_controllers_yaml['controller_names']:
+    #             if name in gripper_controllers_yaml:
+    #                 if name not in controllers_yaml['controller_names']:
+    #                     controllers_yaml['controller_names'].append(name)
+    #                 controllers_yaml[name] = gripper_controllers_yaml[name]
+    #     if gripper_ompl_planning_yaml:
+    #         ompl_planning_yaml.update(gripper_ompl_planning_yaml)
+    #     if joint_limits_yaml and gripper_joint_limits_yaml:
+    #         joint_limits_yaml['joint_limits'].update(gripper_joint_limits_yaml['joint_limits'])
 
     add_prefix_to_moveit_params = getattr(mod, 'add_prefix_to_moveit_params')
     add_prefix_to_moveit_params(
@@ -274,20 +217,20 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
-    xyz = attach_xyz.perform(context)[1:-1].split(' ')
-    rpy = attach_rpy.perform(context)[1:-1].split(' ')
-    args = xyz + rpy + ['world', '{}link_base'.format(prefix.perform(context))]
+    # xyz = attach_xyz.perform(context)[1:-1].split(' ')
+    # rpy = attach_rpy.perform(context)[1:-1].split(' ')
+    # args = xyz + rpy + ['world', '{}link_base'.format(prefix.perform(context))]
 
-    # Static TF
-    static_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_transform_publisher',
-        output='screen',
-        # arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link_base'],
-        arguments=args,
-        parameters=[{'use_sim_time': use_sim_time}],
-    )
+    # # Static TF
+    # static_tf = Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     name='static_transform_publisher',
+    #     output='screen',
+    #     # arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'world', 'link_base'],
+    #     arguments=args,
+    #     parameters=[{'use_sim_time': use_sim_time}],
+    # )
 
     return [
         RegisterEventHandler(event_handler=OnProcessExit(
@@ -295,7 +238,7 @@ def launch_setup(context, *args, **kwargs):
             on_exit=[EmitEvent(event=Shutdown())]
         )),
         rviz2_node,
-        static_tf,
+        # static_tf,
         move_group_node,
     ]
 

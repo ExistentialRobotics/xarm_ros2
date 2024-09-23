@@ -42,18 +42,6 @@ MoveItConfigsBuilder(
         attach_to='world'
         attach_xyz='0 0 0'
         attach_rpy='0 0 0'
-        add_other_geometry=False
-        geometry_type='box'
-        geometry_mass=0.1
-        geometry_height=0.1
-        geometry_radius=0.1
-        geometry_length=0.1
-        geometry_width=0.1
-        geometry_mesh_filename=''
-        geometry_mesh_origin_xyz='0 0 0'
-        geometry_mesh_origin_rpy='0 0 0'
-        geometry_mesh_tcp_xyz='0 0 0'
-        geometry_mesh_tcp_rpy='0 0 0'
         kinematics_suffix=''
 
 DualMoveItConfigsBuilder(
@@ -91,30 +79,6 @@ DualMoveItConfigsBuilder(
         add_realsense_d435i_2=False
         add_d435i_links_1=True
         add_d435i_links_2=True
-        add_other_geometry_1=False
-        add_other_geometry_2=False
-        geometry_type_1='box'
-        geometry_type_2='box'
-        geometry_mass_1=0.1
-        geometry_mass_2=0.1
-        geometry_height_1=0.1
-        geometry_height_2=0.1
-        geometry_radius_1=0.1
-        geometry_radius_2=0.1
-        geometry_length_1=0.1
-        geometry_length_2=0.1
-        geometry_width_1=0.1
-        geometry_width_2=0.1
-        geometry_mesh_filename_1=''
-        geometry_mesh_filename_2=''
-        geometry_mesh_origin_xyz_1='0 0 0'
-        geometry_mesh_origin_xyz_2='0 0 0'
-        geometry_mesh_origin_rpy_1='0 0 0'
-        geometry_mesh_origin_rpy_2='0 0 0'
-        geometry_mesh_tcp_xyz_1='0 0 0'
-        geometry_mesh_tcp_xyz_2='0 0 0'
-        geometry_mesh_tcp_rpy_1='0 0 0'
-        geometry_mesh_tcp_rpy_2='0 0 0'
 
 Example:
     moveit_configs = MoveItConfigsBuilder(
@@ -257,18 +221,6 @@ class MoveItConfigsBuilder(ParameterBuilder):
         add_realsense_d435i = get_param_str('add_realsense_d435i', False)
         add_d435i_links = get_param_str('add_d435i_links', True)
         use_gazebo_camera = get_param_str('use_gazebo_camera', False)
-        add_other_geometry = get_param_str('add_other_geometry', False)
-        geometry_type = get_param_str('geometry_type', 'box')
-        geometry_mass = get_param_str('geometry_mass', 0.1)
-        geometry_height = get_param_str('geometry_height', 0.1)
-        geometry_radius = get_param_str('geometry_radius', 0.1)
-        geometry_length = get_param_str('geometry_length', 0.1)
-        geometry_width = get_param_str('geometry_width', 0.1)
-        geometry_mesh_filename = get_param_str('geometry_mesh_filename', '')
-        geometry_mesh_origin_xyz = get_list_param_str('geometry_mesh_origin_xyz', '0 0 0')
-        geometry_mesh_origin_rpy = get_list_param_str('geometry_mesh_origin_rpy', '0 0 0')
-        geometry_mesh_tcp_xyz = get_list_param_str('geometry_mesh_tcp_xyz', '0 0 0')
-        geometry_mesh_tcp_rpy = get_list_param_str('geometry_mesh_tcp_rpy', '0 0 0')
 
         self.__prefix = prefix
         self.__robot_dof = dof
@@ -306,18 +258,6 @@ class MoveItConfigsBuilder(ParameterBuilder):
             'add_realsense_d435i': add_realsense_d435i,
             'add_d435i_links': add_d435i_links,
             'use_gazebo_camera': use_gazebo_camera,
-            'add_other_geometry': add_other_geometry,
-            'geometry_type': geometry_type,
-            'geometry_mass': geometry_mass,
-            'geometry_height': geometry_height,
-            'geometry_radius': geometry_radius,
-            'geometry_length': geometry_length,
-            'geometry_width': geometry_width,
-            'geometry_mesh_filename': geometry_mesh_filename,
-            'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-            'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-            'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-            'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
         }
         self.__srdf_xacro_args = {
             'prefix': prefix,
@@ -326,7 +266,6 @@ class MoveItConfigsBuilder(ParameterBuilder):
             'add_gripper': add_gripper,
             'add_vacuum_gripper': add_vacuum_gripper,
             'add_bio_gripper': add_bio_gripper,
-            'add_other_geometry': add_other_geometry,
         }
 
         self.__urdf_package = Path(get_package_share_directory('xarm_description'))
@@ -883,42 +822,6 @@ class DualMoveItConfigsBuilder(ParameterBuilder):
         add_d435i_links = get_param_str('add_d435i_links', True)
         add_d435i_links_1 = get_param_str('add_d435i_links_1', add_d435i_links)
         add_d435i_links_2 = get_param_str('add_d435i_links_2', add_d435i_links)
-        add_other_geometry = get_param_str('add_other_geometry', False)
-        add_other_geometry_1 = get_param_str('add_other_geometry_1', add_other_geometry)
-        add_other_geometry_2 = get_param_str('add_other_geometry_2', add_other_geometry)
-        geometry_type = get_param_str('geometry_type', 'box')
-        geometry_type_1 = get_param_str('geometry_type_1', geometry_type)
-        geometry_type_2 = get_param_str('geometry_type_2', geometry_type)
-        geometry_mass = get_param_str('geometry_mass', 0.1)
-        geometry_mass_1 = get_param_str('geometry_mass_1', geometry_mass)
-        geometry_mass_2 = get_param_str('geometry_mass_2', geometry_mass)
-        geometry_height = get_param_str('geometry_height', 0.1)
-        geometry_height_1 = get_param_str('geometry_height_1', geometry_height)
-        geometry_height_2 = get_param_str('geometry_height_2', geometry_height)
-        geometry_radius = get_param_str('geometry_radius', 0.1)
-        geometry_radius_1 = get_param_str('geometry_radius_1', geometry_radius)
-        geometry_radius_2 = get_param_str('geometry_radius_2', geometry_radius)
-        geometry_length = get_param_str('geometry_length', 0.1)
-        geometry_length_1 = get_param_str('geometry_length_1', geometry_length)
-        geometry_length_2 = get_param_str('geometry_length_2', geometry_length)
-        geometry_width = get_param_str('geometry_width', 0.1)
-        geometry_width_1 = get_param_str('geometry_width_1', geometry_width)
-        geometry_width_2 = get_param_str('geometry_width_2', geometry_width)
-        geometry_mesh_filename = get_param_str('geometry_mesh_filename', '')
-        geometry_mesh_filename_1 = get_param_str('geometry_mesh_filename_1', geometry_mesh_filename)
-        geometry_mesh_filename_2 = get_param_str('geometry_mesh_filename_2', geometry_mesh_filename)
-        geometry_mesh_origin_xyz = get_list_param_str('geometry_mesh_origin_xyz', '0 0 0')
-        geometry_mesh_origin_xyz_1 = get_list_param_str('geometry_mesh_origin_xyz_1', geometry_mesh_origin_xyz)
-        geometry_mesh_origin_xyz_2 = get_list_param_str('geometry_mesh_origin_xyz_2', geometry_mesh_origin_xyz)
-        geometry_mesh_origin_rpy = get_list_param_str('geometry_mesh_origin_rpy', '0 0 0')
-        geometry_mesh_origin_rpy_1 = get_list_param_str('geometry_mesh_origin_rpy_1', geometry_mesh_origin_rpy)
-        geometry_mesh_origin_rpy_2 = get_list_param_str('geometry_mesh_origin_rpy_2', geometry_mesh_origin_rpy)
-        geometry_mesh_tcp_xyz = get_list_param_str('geometry_mesh_tcp_xyz', '0 0 0')
-        geometry_mesh_tcp_xyz_1 = get_list_param_str('geometry_mesh_tcp_xyz_1', geometry_mesh_tcp_xyz)
-        geometry_mesh_tcp_xyz_2 = get_list_param_str('geometry_mesh_tcp_xyz_2', geometry_mesh_tcp_xyz)
-        geometry_mesh_tcp_rpy = get_list_param_str('geometry_mesh_tcp_rpy', '0 0 0')
-        geometry_mesh_tcp_rpy_1 = get_list_param_str('geometry_mesh_tcp_rpy_1', geometry_mesh_tcp_rpy)
-        geometry_mesh_tcp_rpy_2 = get_list_param_str('geometry_mesh_tcp_rpy_2', geometry_mesh_tcp_rpy)
         
         self.__prefix_1 = prefix_1
         self.__prefix_2 = prefix_2
@@ -970,30 +873,6 @@ class DualMoveItConfigsBuilder(ParameterBuilder):
             'add_realsense_d435i_2': add_realsense_d435i_2,
             'add_d435i_links_1': add_d435i_links_1,
             'add_d435i_links_2': add_d435i_links_2,
-            'add_other_geometry_1': add_other_geometry_1,
-            'add_other_geometry_2': add_other_geometry_2,
-            'geometry_type_1': geometry_type_1,
-            'geometry_type_2': geometry_type_2,
-            'geometry_mass_1': geometry_mass_1,
-            'geometry_mass_2': geometry_mass_2,
-            'geometry_height_1': geometry_height_1,
-            'geometry_height_2': geometry_height_2,
-            'geometry_radius_1': geometry_radius_1,
-            'geometry_radius_2': geometry_radius_2,
-            'geometry_length_1': geometry_length_1,
-            'geometry_length_2': geometry_length_2,
-            'geometry_width_1': geometry_width_1,
-            'geometry_width_2': geometry_width_2,
-            'geometry_mesh_filename_1': geometry_mesh_filename_1,
-            'geometry_mesh_filename_2': geometry_mesh_filename_2,
-            'geometry_mesh_origin_xyz_1': geometry_mesh_origin_xyz_1,
-            'geometry_mesh_origin_xyz_2': geometry_mesh_origin_xyz_2,
-            'geometry_mesh_origin_rpy_1': geometry_mesh_origin_rpy_1,
-            'geometry_mesh_origin_rpy_2': geometry_mesh_origin_rpy_2,
-            'geometry_mesh_tcp_xyz_1': geometry_mesh_tcp_xyz_1,
-            'geometry_mesh_tcp_xyz_2': geometry_mesh_tcp_xyz_2,
-            'geometry_mesh_tcp_rpy_1': geometry_mesh_tcp_rpy_1,
-            'geometry_mesh_tcp_rpy_2': geometry_mesh_tcp_rpy_2,
         }
         self.__srdf_xacro_args = {
             'prefix_1': prefix_1,
@@ -1008,8 +887,6 @@ class DualMoveItConfigsBuilder(ParameterBuilder):
             'add_vacuum_gripper_2': add_vacuum_gripper_2,
             'add_bio_gripper_1': add_bio_gripper_1,
             'add_bio_gripper_2': add_bio_gripper_2,
-            'add_other_geometry_1': add_other_geometry_1,
-            'add_other_geometry_2': add_other_geometry_2,
         }
 
         self.__urdf_package = Path(get_package_share_directory('xarm_description'))

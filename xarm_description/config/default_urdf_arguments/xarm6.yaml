@@ -1,0 +1,25 @@
+# prefix: '' # changes at runtime
+# hw_ns: 'xarm' # changes at runtime
+# ros2_control_plugin: 'uf_robot_hardware/UFRobotSystemHardware' # changes at runtime
+# ros2_control_params: '' # changes at runtime
+robot_ip: ''
+dof: 6
+robot_type: 'xarm'
+report_type: 'normal'
+baud_checkset: true
+default_gripper_baud: 2000000 
+model1300: false
+robot_sn: '' 
+# control-related
+limited: false
+effort_control: false 
+velocity_control: false
+# urdf-related
+attach_to: 'world'
+attach_xyz: '0 0 0'
+attach_rpy: '0 0 0'
+create_attach_link: true
+mesh_suffix: 'stl' 
+kinematics_suffix: ''
+# sim
+use_gazebo_camera: false

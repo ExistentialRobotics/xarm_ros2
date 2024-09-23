@@ -6,6 +6,13 @@ controller_manager:
 
     traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+    # Original comment: only for fake control (?)
+    gripper_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    # Original comment: only for fake control (?)
+    bio_gripper_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
 traj_controller:
   ros__parameters:
@@ -35,3 +42,28 @@ traj_controller:
     state_publish_rate: 25.0
     action_monitor_rate: 10.0
     update_rate: 25
+
+# Original comment: only for fake control (?)
+gripper_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    joints:
+      - drive_joint
+    interface_name: position
+
+# only for fake control
+bio_gripper_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    joints:
+      # - left_finger_joint
+      - right_finger_joint
+    interface_name: position

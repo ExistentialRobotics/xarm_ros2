@@ -19,44 +19,16 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def launch_setup(context, *args, **kwargs):
-    dof = LaunchConfiguration('dof')
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    limited = LaunchConfiguration('limited', default=True)
-    effort_control = LaunchConfiguration('effort_control', default=False)
-    velocity_control = LaunchConfiguration('velocity_control', default=False)
-    add_gripper = LaunchConfiguration('add_gripper', default=False)
-    add_vacuum_gripper = LaunchConfiguration('add_vacuum_gripper', default=False)
-    add_bio_gripper = LaunchConfiguration('add_bio_gripper', default=False)
+
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
     node_executable = LaunchConfiguration('node_executable', default='xarm_planner_node')
     node_name = LaunchConfiguration('node_name', default=node_executable)
     node_parameters = LaunchConfiguration('node_parameters', default={})
-    use_gripper_node = LaunchConfiguration('use_gripper_node', default=add_gripper)
-
-    add_realsense_d435i = LaunchConfiguration('add_realsense_d435i', default=False)
-    add_d435i_links = LaunchConfiguration('add_d435i_links', default=True)
-    model1300 = LaunchConfiguration('model1300', default=False)
-
-    add_other_geometry = LaunchConfiguration('add_other_geometry', default=False)
-    geometry_type = LaunchConfiguration('geometry_type', default='box')
-    geometry_mass = LaunchConfiguration('geometry_mass', default=0.1)
-    geometry_height = LaunchConfiguration('geometry_height', default=0.1)
-    geometry_radius = LaunchConfiguration('geometry_radius', default=0.1)
-    geometry_length = LaunchConfiguration('geometry_length', default=0.1)
-    geometry_width = LaunchConfiguration('geometry_width', default=0.1)
-    geometry_mesh_filename = LaunchConfiguration('geometry_mesh_filename', default='')
-    geometry_mesh_origin_xyz = LaunchConfiguration('geometry_mesh_origin_xyz', default='"0 0 0"')
-    geometry_mesh_origin_rpy = LaunchConfiguration('geometry_mesh_origin_rpy', default='"0 0 0"')
-    geometry_mesh_tcp_xyz = LaunchConfiguration('geometry_mesh_tcp_xyz', default='"0 0 0"')
-    geometry_mesh_tcp_rpy = LaunchConfiguration('geometry_mesh_tcp_rpy', default='"0 0 0"')
-
-    kinematics_suffix = LaunchConfiguration('kinematics_suffix', default='')
-
-    robot_type = LaunchConfiguration('robot_type', default='xarm')
 
     moveit_config_package_name = 'xarm_moveit_config'
-    xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
+    xarm_type = 'xarm6' #TODO: fix later with env var
 
     # robot_description_parameters
     # xarm_moveit_config/launch/lib/robot_moveit_config_lib.py
@@ -68,40 +40,10 @@ def launch_setup(context, *args, **kwargs):
         urdf_arguments={
             'prefix': prefix,
             'hw_ns': hw_ns.perform(context).strip('/'),
-            'limited': limited,
-            'effort_control': effort_control,
-            'velocity_control': velocity_control,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'dof': dof,
-            'robot_type': robot_type,
             'ros2_control_plugin': ros2_control_plugin,
-            'add_realsense_d435i': add_realsense_d435i,
-            'add_d435i_links': add_d435i_links,
-            'model1300': model1300,
-            'add_other_geometry': add_other_geometry,
-            'geometry_type': geometry_type,
-            'geometry_mass': geometry_mass,
-            'geometry_height': geometry_height,
-            'geometry_radius': geometry_radius,
-            'geometry_length': geometry_length,
-            'geometry_width': geometry_width,
-            'geometry_mesh_filename': geometry_mesh_filename,
-            'geometry_mesh_origin_xyz': geometry_mesh_origin_xyz,
-            'geometry_mesh_origin_rpy': geometry_mesh_origin_rpy,
-            'geometry_mesh_tcp_xyz': geometry_mesh_tcp_xyz,
-            'geometry_mesh_tcp_rpy': geometry_mesh_tcp_rpy,
-            'kinematics_suffix': kinematics_suffix,
         },
         srdf_arguments={
             'prefix': prefix,
-            'dof': dof,
-            'robot_type': robot_type,
-            'add_gripper': add_gripper,
-            'add_vacuum_gripper': add_vacuum_gripper,
-            'add_bio_gripper': add_bio_gripper,
-            'add_other_geometry': add_other_geometry,
         },
         arguments={
             'context': context,
@@ -125,8 +67,8 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             robot_description_parameters,
             {
-                'robot_type': robot_type,
-                'dof': dof,
+                'robot_type': 'xarm', #TODO: fix later
+                'dof': '6', #TODO: fix later 
                 'prefix': prefix
             },
             xarm_planner_parameters,
@@ -136,19 +78,19 @@ def launch_setup(context, *args, **kwargs):
     nodes = [
         xarm_planner_node
     ]
-    if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true') and use_gripper_node.perform(context) in ('True', 'true'):
-        planning_group = 'uf850_gripper' if robot_type.perform(context) == 'uf850' else 'xarm_gripper'
-        xarm_gripper_planner_node = Node(
-            name='xarm_gripper_planner_node',
-            package='xarm_planner',
-            executable='xarm_gripper_planner_node',
-            output='screen',
-            parameters=[
-                robot_description_parameters,
-                {'PLANNING_GROUP': planning_group},
-            ],
-        )
-        nodes.append(xarm_gripper_planner_node)
+    # if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true') and use_gripper_node.perform(context) in ('True', 'true'):
+    #     planning_group = 'uf850_gripper' if robot_type.perform(context) == 'uf850' else 'xarm_gripper'
+    #     xarm_gripper_planner_node = Node(
+    #         name='xarm_gripper_planner_node',
+    #         package='xarm_planner',
+    #         executable='xarm_gripper_planner_node',
+    #         output='screen',
+    #         parameters=[
+    #             robot_description_parameters,
+    #             {'PLANNING_GROUP': planning_group},
+    #         ],
+    #     )
+    #     nodes.append(xarm_gripper_planner_node)
     return nodes
 
 

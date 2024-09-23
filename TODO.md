@@ -1,0 +1,4 @@
+- URDF generation includes ROS2 control params by default?
+- Create environment variable for robot name and for URDF configuration file. 
+- Moved end effector configurations to a file. 
+- Remove python_launch_as_module calls
