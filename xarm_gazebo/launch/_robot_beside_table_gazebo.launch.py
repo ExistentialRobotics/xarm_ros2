@@ -109,8 +109,8 @@ def get_per_robot_stack(robot_idx, load_controller):
         arguments=[
             '-topic', f'robot_description',
             '-allow_renaming', 'false',
-            '-x', str(-0.4 + robot_idx * 0.4),
-            '-y', '-0.5',
+            '-x', str(0.0 + robot_idx * 0.4),
+            '-y', '-0.3',
             '-z', '1.021',
             '-Y', '1.571',
             '-timeout', '10000',
