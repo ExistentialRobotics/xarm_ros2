@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 import os
+import xacro
 from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import load_python_launch_file_as_module
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import OpaqueFunction, TimerAction
+from launch_ros.actions import Node
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
-from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
-from launch.actions import OpaqueFunction
 from uf_ros_lib.uf_robot_utils import get_xacro_command
-from uf_ros_lib.launch_configurations import LaunchConfigStoreArg
 
 def build_robot_description(
     this_robot_prefix="",
@@ -60,6 +54,17 @@ def build_robot_description(
         ),
     }
 
+    return robot_description
+
+def build_camera_description(this_robot_namespace=""):
+    robot_description = {
+        'robot_description': get_xacro_command(
+            xacro_file=PathJoinSubstitution([FindPackageShare('main'), 'urdf','camera', 'sensor_d455.urdf.xacro']), 
+            mappings={
+                'prefix': this_robot_namespace,
+            }
+        ),
+    }
     return robot_description
 
 def get_per_robot_stack(robot_idx, load_controller):
@@ -181,21 +186,20 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
             'gz_args': '-r'
+        }
+    )
+
+    world_sdf_path = os.path.join(get_package_share_directory('main'),'world','world.sdf') # Path to your world file
+    camera_namespace = LaunchConfiguration('camera_namespace', default="camera_01")
+
+    # Gazebo launch
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
+        launch_arguments={
+            'gz_args': f'-r {world_sdf_path}',  # Load the world file with Gazebo directly
         }.items(),
     )
 
-    spawn_world = Node(
-        package="ros_gz_sim",
-        executable="create",
-        output='screen',
-        arguments=[
-            '-file', 'https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table',
-            '-y', '-0.84'
-        ],
-        parameters=[{'use_sim_time': True}],
-    )
-
-    # 
     # ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
     clock_parameter_bridge = Node(
         package="ros_gz_bridge",
@@ -206,7 +210,44 @@ def generate_launch_description():
         ]
     )
 
-    nodes_to_launch = [gazebo_launch, spawn_world, clock_parameter_bridge]
+    nodes_to_launch = [gazebo_launch, clock_parameter_bridge]
+
+
+    camera_robot_description = build_camera_description(this_robot_namespace = camera_namespace)
+
+    robot_state_publisher_node_camera = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace=camera_namespace,
+        parameters=[camera_robot_description]
+    )
+    nodes_to_launch.append(robot_state_publisher_node_camera)
+    
+    gazebo_spawn_camera_node = Node(
+        package="ros_gz_sim",
+        executable="create",
+        namespace=camera_namespace,
+        output='screen',
+        arguments=[
+            '-topic', 'robot_description',
+            '-allow_renaming', 'false',
+            '-x', '0.2',  # Corrected: Added missing commas
+            '-y', '0.7',
+            '-z', '1.2',
+            '-P', '0',
+            '-Y', '-1.8',
+            '-timeout', '10000'
+        ],
+        parameters=[{'use_sim_time': True}],
+    )
+
+    delayed_spawn = TimerAction(
+        period=2.0,
+        actions=[gazebo_spawn_camera_node]
+    )
+
+    nodes_to_launch.append(delayed_spawn)
 
     def _launch_all_robots(context):
         return sum(
@@ -215,9 +256,7 @@ def generate_launch_description():
                     robot_idx, 
                     bool(load_controller_config.perform(context))
                 ) for robot_idx in range(int(num_robots_config.perform(context)))
-            ],
-            []
-        )
-
+            ], [])
+    
     launch_all_robots = OpaqueFunction(function=_launch_all_robots)
     return LaunchDescription(nodes_to_launch + [launch_all_robots] + [load_controller_arg, num_robots_arg])
