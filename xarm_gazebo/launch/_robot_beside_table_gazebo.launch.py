@@ -31,11 +31,8 @@ def build_robot_description(
             'config', 'xarm6_controllers.yaml'
         ),
         prefix=this_robot_prefix, 
-        add_gripper=False, #TODO: fix this later
-        add_bio_gripper=False,
         ros_namespace=this_robot_namespace,
         update_rate=1000,
-        robot_type='xarm'
     )
 
     print(f"Generated temporary control params at {ros2_control_params}")
