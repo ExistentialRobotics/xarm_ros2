@@ -31,8 +31,11 @@ def build_robot_description(
             'config', 'xarm6_controllers.yaml'
         ),
         prefix=this_robot_prefix, 
+        add_gripper=False, #TODO: fix this later
+        add_bio_gripper=False,
         ros_namespace=this_robot_namespace,
         update_rate=1000,
+        robot_type='xarm'
     )
 
     print(f"Generated temporary control params at {ros2_control_params}")
@@ -115,95 +118,37 @@ def get_per_robot_stack(robot_idx, load_controller):
         parameters=[{'use_sim_time': True}],
     )
 
-    # Planning Configuration
-    xarm_type='xarm6' #TODO: fix
-    moveit_config_package_name = 'xarm_moveit_config'
-    controllers_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, 'fake_controllers.yaml')
+    prefix = LaunchConfiguration('prefix', default='')
+    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
+    robot_type='xarm' # TODO - fix
+    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
+
+    ros2_control_plugin = 'uf_robot_hardware/UFRobotFakeSystemHardware'
+    controllers_name = 'fake_controllers'
+    moveit_controller_manager_key = 'moveit_simple_controller_manager'
+    moveit_controller_manager_value = 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
 
 
-    mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory(moveit_config_package_name), 'launch', 'lib', 'robot_moveit_config_lib.py'))
-    load_yaml = getattr(mod, 'load_yaml')
-    ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, 'ompl_planning.yaml')
-    ompl_planning_pipeline_config = {
-        'default_planning_pipeline': 'ompl',
-        'planning_pipelines': ['ompl'],
-    }
-    if os.environ.get('ROS_DISTRO', '') > 'iron':
-        ompl_planning_pipeline_config['ompl'] = {
-            'planning_plugins': ['ompl_interface/OMPLPlanner'],
-            'request_adapters': [
-                'default_planning_request_adapters/ResolveConstraintFrames',
-                'default_planning_request_adapters/ValidateWorkspaceBounds',
-                'default_planning_request_adapters/CheckStartStateBounds',
-                'default_planning_request_adapters/CheckStartStateCollision',
-            ],
-            'response_adapters': [
-                'default_planning_response_adapters/AddTimeOptimalParameterization',
-                'default_planning_response_adapters/ValidateSolution',
-                'default_planning_response_adapters/DisplayMotionPath',
-            ],
-        }
-    else:
-        ompl_planning_pipeline_config['ompl'] = {
-            'planning_plugin': 'ompl_interface/OMPLPlanner',
-            'request_adapters': """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
-            'start_state_max_bounds_error': 0.1,
-        }
-    ompl_planning_pipeline_config['ompl'].update(ompl_planning_yaml)
-
-    # Moveit controllers Configuration
-    moveit_controllers = {
-        'moveit_fake_controller_manager': controllers_yaml,
-        'moveit_controller_manager': 'moveit_fake_controller_manager/MoveItFakeControllerManager',
-    }
-
-    # Trajectory Execution Configuration
-    trajectory_execution = {
-        'moveit_manage_controllers': True,
-        'trajectory_execution.allowed_execution_duration_scaling': 1.2,
-        'trajectory_execution.allowed_goal_duration_margin': 0.5,
-        'trajectory_execution.allowed_start_tolerance': 0.01,
-        'trajectory_execution.execution_duration_monitoring': False
-    }
-
-    plan_execution = {
-        'plan_execution.record_trajectory_state_frequency': 10.0,
-    }
-
-    planning_scene_monitor_parameters = {
-        'publish_planning_scene': True,
-        'publish_geometry_updates': True,
-        'publish_state_updates': True,
-        'publish_transforms_updates': True,
-        # "planning_scene_monitor_options": {
-        #     "name": "planning_scene_monitor",
-        #     "robot_description": "robot_description",
-        #     "joint_state_topic": "/joint_states",
-        #     "attached_collision_object_topic": "/move_group/planning_scene_monitor",
-        #     "publish_planning_scene_topic": "/move_group/publish_planning_scene",
-        #     "monitored_planning_scene_topic": "/move_group/monitored_planning_scene",
-        #     "wait_for_initial_state_timeout": 10.0,
-        # },
-    }
-
-    move_group_node = Node(
-        package='moveit_ros_move_group',
-        executable='move_group',
-        output='screen',
-        parameters=[
-            '-topic', f'robot_description',
-            ompl_planning_pipeline_config,
-            trajectory_execution,
-            plan_execution,
-            moveit_controllers,
-            planning_scene_monitor_parameters,
-            {'use_sim_time': True},
-        ],
+    robot_moveit_common_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('xarm_moveit_config'), 'launch', '_robot_moveit_common.launch.py'])),
+        launch_arguments={
+            'prefix': prefix,
+            'hw_ns': hw_ns,
+            # 'add_gripper': add_gripper if robot_type.perform(context) == 'xarm' else 'false',
+            'no_gui_ctrl': no_gui_ctrl,
+            'ros2_control_plugin': ros2_control_plugin,
+            'controllers_name': controllers_name,
+            'moveit_controller_manager_key': moveit_controller_manager_key,
+            'moveit_controller_manager_value': moveit_controller_manager_value,
+        }.items(),
     )
 
     nodes_to_launch.append(
         gazebo_spawn_entity_node,
-        # move_group_node,            
+    )
+
+    nodes_to_launch.append(
+        robot_moveit_common_launch,
     )
     
     # Load controllers
