@@ -8,7 +8,7 @@
   </xacro:macro>
 
   <xacro:arg name="prefix" default=""/>
-  <xacro:arg name="hw_ns" default="xarm"/>
+  <xacro:arg name="hw_ns" default=""/>
   <xacro:arg name="ros2_control_plugin" default="uf_robot_hardware/UFRobotSystemHardware"/>
   <xacro:arg name="ros2_control_params" default=""/>
 

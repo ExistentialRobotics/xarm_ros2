@@ -57,7 +57,7 @@ def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', 
                 
         add_prefix_to_ros2_control_params(prefix, ros2_control_params_yaml)
 
-        if not ros_namespace.startswith('/'):
+        if ros_namespace and not ros_namespace.startswith('/'):
             ros_namespace = f'/{ros_namespace}'
 
         # add namespace, possibly just slash to all nodes

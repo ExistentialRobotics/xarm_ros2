@@ -15,11 +15,11 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     prefix = LaunchConfiguration('prefix', default='')
-    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
+    hw_ns = LaunchConfiguration('hw_ns', default='')
     no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
 
     ros2_control_plugin = 'ign_ros2_control/IgnitionSystem'
-    controllers_name = 'fake_controllers'
+    controllers_name = 'controllers'
     moveit_controller_manager_key = 'moveit_simple_controller_manager'
     moveit_controller_manager_value = 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
 

@@ -48,7 +48,7 @@ def launch_setup(context, *args, **kwargs):
             'ros2_control_plugin': ros2_control_plugin,
         },
         srdf_arguments={
-            'prefix': prefix,
+            'prefix': 'xarm6_',
             # 'dof': dof,
             # 'robot_type': robot_type,
             # 'add_gripper': add_gripper,
@@ -194,6 +194,7 @@ def launch_setup(context, *args, **kwargs):
             planning_scene_monitor_parameters,
             # sensor_manager_parameters,
             {'use_sim_time': use_sim_time},
+            {'publish_robot_description_semantic': True},
         ],
     )
 
@@ -214,7 +215,7 @@ def launch_setup(context, *args, **kwargs):
         remappings=[
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
-        ]
+        ],
     )
 
     # xyz = attach_xyz.perform(context)[1:-1].split(' ')

@@ -76,10 +76,10 @@ def get_xarm_robot_description_parameters(
     
     # xarm_description/launch/lib/robot_description_lib.py    
     return {
-        'robot_description': get_xacro_command(
-            xacro_file=xacro_urdf_file, 
-            mappings=urdf_arguments
-        ),
+        # 'robot_description': get_xacro_command(
+        #     xacro_file=xacro_urdf_file, 
+        #     mappings=urdf_arguments
+        # ),
         'robot_description_semantic': get_xacro_command(
             xacro_file=xacro_srdf_file,
             mappings=srdf_arguments
