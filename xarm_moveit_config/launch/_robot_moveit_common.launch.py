@@ -48,7 +48,7 @@ def launch_setup(context, *args, **kwargs):
             'ros2_control_plugin': ros2_control_plugin,
         },
         srdf_arguments={
-            'prefix': '',
+            'prefix': 'xarm6_',
             # 'dof': dof,
             # 'robot_type': robot_type,
             # 'add_gripper': add_gripper,
@@ -196,7 +196,6 @@ def launch_setup(context, *args, **kwargs):
             {'use_sim_time': use_sim_time},
             {'publish_robot_description_semantic': True},
         ],
-        namespace="xarm0"
     )
 
     # rviz with moveit configuration
@@ -216,11 +215,6 @@ def launch_setup(context, *args, **kwargs):
         remappings=[
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
-            ('/robot_description', '/xarm0/robot_description'),
-            ('/robot_description_semantic', '/xarm0/robot_description_semantic'),
-            ('/monitored_planning_scene', '/xarm0/monitored_planning_scene'),
-            ('/get_planning_scene', '/xarm0/get_planning_scene'),
-
         ],
     )
 
