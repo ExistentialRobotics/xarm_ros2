@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="xarm_device">
   <xacro:macro name="xarm_device" params="
     prefix:=''
-    hw_ns:='xarm'
+    hw_ns:=''
     limited:=false
     effort_control:=false 
     velocity_control:=false

@@ -302,13 +302,13 @@ def generate_launch_description():
 
     # gazebo launch
     # gazebo_ros/launch/gazebo.launch.py
-    xarm_gazebo_world = PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'worlds', 'table.world'])
-    gazebo_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
-        launch_arguments={
-            'gz_args': '-r'
-        }
-    )
+    # xarm_gazebo_world = PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'worlds', 'table.world'])
+    # gazebo_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
+    #     launch_arguments={
+    #         'gz_args': '-r'
+    #     }
+    # )
 
     world_sdf_path = os.path.join(get_package_share_directory('main'),'world','world.sdf') # Path to your world file
     camera_namespace = LaunchConfiguration('camera_namespace', default="camera_01")
@@ -317,7 +317,7 @@ def generate_launch_description():
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': f'-r {world_sdf_path}',  # Load the world file with Gazebo directly
+            'gz_args': f'-v4 -r {world_sdf_path}',  # Load the world file with Gazebo directly
         }.items(),
     )
 
@@ -333,41 +333,41 @@ def generate_launch_description():
 
     nodes_to_launch = [gazebo_launch, clock_parameter_bridge]
 
-    camera_robot_description = build_camera_description(this_robot_namespace = camera_namespace)
+    # camera_robot_description = build_camera_description(this_robot_namespace = camera_namespace)
 
-    robot_state_publisher_node_camera = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        namespace=camera_namespace,
-        parameters=[camera_robot_description]
-    )
-    nodes_to_launch.append(robot_state_publisher_node_camera)
+    # robot_state_publisher_node_camera = Node(
+    #     package='robot_state_publisher',
+    #     executable='robot_state_publisher',
+    #     output='screen',
+    #     namespace=camera_namespace,
+    #     parameters=[camera_robot_description]
+    # )
+    # nodes_to_launch.append(robot_state_publisher_node_camera)
     
-    gazebo_spawn_camera_node = Node(
-        package="ros_gz_sim",
-        executable="create",
-        namespace=camera_namespace,
-        output='screen',
-        arguments=[
-            '-topic', 'robot_description',
-            '-allow_renaming', 'false',
-            '-x', '0.2',  # Corrected: Added missing commas
-            '-y', '0.7',
-            '-z', '1.2',
-            '-P', '0',
-            '-Y', '-1.8',
-            '-timeout', '10000'
-        ],
-        parameters=[{'use_sim_time': True}],
-    )
+    # gazebo_spawn_camera_node = Node(
+    #     package="ros_gz_sim",
+    #     executable="create",
+    #     namespace=camera_namespace,
+    #     output='screen',
+    #     arguments=[
+    #         '-topic', 'robot_description',
+    #         '-allow_renaming', 'false',
+    #         '-x', '0.2',  # Corrected: Added missing commas
+    #         '-y', '0.7',
+    #         '-z', '1.2',
+    #         '-P', '0',
+    #         '-Y', '-1.8',
+    #         '-timeout', '10000'
+    #     ],
+    #     parameters=[{'use_sim_time': True}],
+    # )
 
-    delayed_spawn = TimerAction(
-        period=2.0,
-        actions=[gazebo_spawn_camera_node]
-    )
+    # delayed_spawn = TimerAction(
+    #     period=2.0,
+    #     actions=[gazebo_spawn_camera_node]
+    # )
 
-    nodes_to_launch.append(delayed_spawn)
+    # nodes_to_launch.append(delayed_spawn)
 
     def _launch_all_robots(context):
         return sum(
