@@ -5,7 +5,6 @@ import yaml
 from tempfile import NamedTemporaryFile
 from ament_index_python import get_package_share_directory
 
-
 def add_prefix_to_ros2_control_params(prefix, ros2_control_params):
     if not prefix:
         return
@@ -26,7 +25,6 @@ def add_prefix_to_ros2_control_params(prefix, ros2_control_params):
         controller_manager_ros__parameters = ros2_control_params.get('controller_manager', {}).get('ros__parameters', {})
         if name in controller_manager_ros__parameters:
             controller_manager_ros__parameters[new_name] = controller_manager_ros__parameters.pop(name)
-
 
 def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', add_gripper=False, add_bio_gripper=False, ros_namespace='', update_rate=None, robot_type='xarm'):
     if ros_namespace or prefix or update_rate:

@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction, IncludeLaunchDescription, DeclareLaunchArgument
@@ -24,7 +18,6 @@ def generate_launch_description():
     moveit_controller_manager_value = 'moveit_simple_controller_manager/MoveItSimpleControllerManager'
 
     # robot moveit common launch
-    # xarm_moveit_config/launch/_robot_moveit_common.launch.py
     robot_moveit_common_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('xarm_moveit_config'), 'launch', '_robot_moveit_common.launch.py'])),
         launch_arguments={
@@ -40,7 +33,6 @@ def generate_launch_description():
     )
 
     # robot gazebo launch
-    # xarm_gazebo/launch/_robot_beside_table_gazebo.launch.py
     robot_gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('xarm_gazebo'), 'launch', '_robot_beside_table_gazebo.launch.py'])),
         launch_arguments={
