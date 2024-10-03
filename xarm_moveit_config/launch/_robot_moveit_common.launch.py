@@ -14,20 +14,16 @@ from launch.events import Shutdown
 
 
 def launch_setup(context, *args, **kwargs):
-    prefix = LaunchConfiguration('prefix', default='')
-    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
-    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
-
     controllers_name = LaunchConfiguration('controllers_name', default='fake_controllers')
+    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
     moveit_controller_manager_key = LaunchConfiguration('moveit_controller_manager_key', default='moveit_fake_controller_manager')
     moveit_controller_manager_value = LaunchConfiguration('moveit_controller_manager_value', default='moveit_fake_controller_manager/MoveItFakeControllerManager')
-
-    use_sim_time = LaunchConfiguration('use_sim_time', default=False)
-
     moveit_config_package_name = 'xarm_moveit_config'
-    # xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
-    xarm_type='xarm6' #TODO: fix
+    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
+    prefix = LaunchConfiguration('prefix', default='')
+    robot_type = LaunchConfiguration('robot_type', default='')
+    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
+    use_sim_time = LaunchConfiguration('use_sim_time', default=False)
     
     # robot_description_parameters
     # xarm_moveit_config/launch/lib/robot_moveit_config_lib.py
@@ -51,13 +47,13 @@ def launch_setup(context, *args, **kwargs):
         },
         arguments={
             'context': context,
-            'xarm_type': xarm_type,
+            'xarm_type': robot_type.perform(context),
         }
     )
 
     load_yaml = getattr(mod, 'load_yaml')
-    controllers_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, '{}.yaml'.format(controllers_name.perform(context)))
-    ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, 'ompl_planning.yaml')
+    controllers_yaml = load_yaml(moveit_config_package_name, 'config', robot_type.perform(context), '{}.yaml'.format(controllers_name.perform(context)))
+    ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', robot_type.perform(context), 'ompl_planning.yaml')
     kinematics_yaml = robot_description_parameters['robot_description_kinematics']
     joint_limits_yaml = robot_description_parameters.get('robot_description_planning', None)
 
