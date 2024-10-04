@@ -12,7 +12,6 @@ from launch.actions import RegisterEventHandler, EmitEvent
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 
-
 def launch_setup(context, *args, **kwargs):
     controllers_name = LaunchConfiguration('controllers_name', default='fake_controllers')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
