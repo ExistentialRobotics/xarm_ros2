@@ -105,7 +105,7 @@
     <joint name="${prefix}joint2" type="revolute">
       <parent link="${prefix}link1"/>
       <child link="${prefix}link2"/>
-      <!-- <origin xyz="0 0 0" rpy="-1.5708 0 0" /> -->
+      <origin xyz="0 0 0" rpy="-1.5708 -0.5 0" />
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint2']}" />
       <axis xyz="0 0 1"/>
       <limit
@@ -134,7 +134,7 @@
     <joint name="${prefix}joint3" type="revolute">
       <parent link="${prefix}link2"/>
       <child link="${prefix}link3"/>
-      <!-- <origin xyz="0.0535 -0.2845 0" rpy="0 0 0"/> -->
+      <origin xyz="0.0535 -0.2845 0" rpy="0 0 -0.5"/>
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint3']}" />
       <axis xyz="0 0 1"/>
       <limit
@@ -192,6 +192,7 @@
     <joint name="${prefix}joint5" type="revolute">
       <parent link="${prefix}link4"/>
       <child link="${prefix}link5"/>
+      <origin xyz="0.0 0.0 0.0" rpy="1.5708 -0.95 0.0"/>
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint5']}" />
       <axis xyz="0 0 1"/>
       <limit
