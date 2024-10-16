@@ -22,7 +22,7 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
     ros2_control_params = generate_ros2_control_params_temp_file(
         os.path.join(get_package_share_directory('xarm_controller'),'config', 'xarm6_controllers.yaml'),
         prefix=this_robot_prefix, 
-        add_gripper= add_gripper, #TODO: fix this later
+        add_gripper= add_gripper,#TODO: fix this later
         add_bio_gripper=False,
         ros_namespace=this_robot_namespace,
         update_rate=1000,
@@ -44,16 +44,17 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
     }
     return robot_description
 
-def build_camera_description(this_robot_namespace=""):
-    robot_description = {
+def build_camera_description(camera_namespace=""):
+    camera_robot_description = {
         'robot_description': get_xacro_command(
-            xacro_file=PathJoinSubstitution([FindPackageShare('main'), 'urdf','camera', 'sensor_d455.urdf.xacro']), 
+            # xacro_file=PathJoinSubstitution([FindPackageShare('main'), 'urdf', 'camera', 'sensor_d455.urdf.xacro']), 
+            xacro_file=PathJoinSubstitution([FindPackageShare('realsense2_description'), 'urdf', 'test_d455_camera.urdf.xacro']), 
             mappings={
-                'prefix': this_robot_namespace,
+                'prefix': camera_namespace,
             }
         ),
     }
-    return robot_description
+    return camera_robot_description
 
 def get_per_robot_stack(robot_idx, load_controller):
     """
@@ -159,7 +160,7 @@ def get_per_robot_stack(robot_idx, load_controller):
 
 def generate_launch_description():
     camera_namespace = LaunchConfiguration('camera_namespace', default='camera_01')
-    camera_robot_description = build_camera_description(this_robot_namespace=camera_namespace)
+    camera_robot_description = build_camera_description(camera_namespace=camera_namespace)
     load_controller_config = LaunchConfiguration('load_controller', default=True)
     num_robots_config = LaunchConfiguration('num_robots', default=1)
     world_sdf_path = os.path.join(get_package_share_directory('main'), 'world', 'world.sdf') 
@@ -214,12 +215,12 @@ def generate_launch_description():
         arguments=[
             '-topic', 'robot_description',
             '-allow_renaming', 'false',
-            '-x', '0.2',
-            '-y', '0.7',
-            '-z', '1.2',
+            '-x', '0.5',
+            '-y', '0.9',
+            '-z', '1.15',
             '-R', '0.0',
-            '-P', '-1.57',
-            '-Y', '-0.35',
+            '-P', '0.0',
+            '-Y', '-1.9',
             '-timeout', '10000',
         ],
         parameters=[{'use_sim_time': True}],

@@ -12,6 +12,9 @@ from launch.actions import RegisterEventHandler, EmitEvent
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 
+import yaml 
+from uf_ros_lib.moveit_configs_builder import MoveItConfigsBuilder
+
 def launch_setup(context, *args, **kwargs):
     controllers_name = LaunchConfiguration('controllers_name', default='fake_controllers')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
@@ -156,18 +159,19 @@ def launch_setup(context, *args, **kwargs):
         # },
     }
 
-    # sensor_manager_parameters = {
-    #     'sensors': ['ros'],
-    #     'octomap_resolution': 0.02,
-    #     'ros.sensor_plugin': 'occupancy_map_monitor/PointCloudOctomapUpdater',
-    #     'ros.point_cloud_topic': '/camera/depth/color/points',
-    #     'ros.max_range': 2.0,
-    #     'ros.point_subsample': 1,
-    #     'ros.padding_offset': 0.1,
-    #     'ros.padding_scale': 1.0,
-    #     'ros.max_update_rate': 1.0,
-    #     'ros.filtered_cloud_topic': 'filtered_cloud',
-    # }
+    sensor_manager_parameters = {
+        'sensors': ['realsense_points'],
+        'realsense_points': {
+            'sensor_plugin': 'occupancy_map_monitor/PointCloudOctomapUpdater',
+            'point_cloud_topic': '/camera_01/camera_depth/points',
+            'max_range': 2.0,
+            'point_subsample': 1,
+            'padding_offset': 0.1,
+            'padding_scale': 1.0,
+            'max_update_rate': 1.0,
+            'filtered_cloud_topic': 'filtered_cloud',
+        }
+    }
 
     # Start the actual move_group node/action server
     move_group_node = Node(
@@ -181,8 +185,11 @@ def launch_setup(context, *args, **kwargs):
             plan_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
-            # sensor_manager_parameters,
-            {'use_sim_time': use_sim_time},
+            sensor_manager_parameters,
+            {'use_sim_time': use_sim_time},  # Simulation time flag
+            {'octomap_topic': '/octomap_full'},  # Octomap topic name
+            {'octomap_resolution': 0.05},  # Resolution of the Octomap
+            {'octomap_queue_size': 100},  # Queue size for the Octomap topic
             {'publish_robot_description_semantic': True},
         ],
     )

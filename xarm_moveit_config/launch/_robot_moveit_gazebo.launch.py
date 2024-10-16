@@ -52,4 +52,9 @@ def generate_launch_description():
         robot_moveit_common_launch,
     ])
 
+# ros2 run tf2_ros static_transform_publisher --x 0.5 --y 0.9 --z 1.15 --roll 0 --pitch -1.57 --yaw -0.33 --frame-id world --child-frame-id camera_01_bottom_screw_frame
+# ros2 run tf2_ros static_transform_publisher --x 0 --y -0.3 --z 1.021 --roll 0 --pitch 0 --yaw 1.571 --frame-id world --child-frame-id xarm6_link_base
+
+
+
 
