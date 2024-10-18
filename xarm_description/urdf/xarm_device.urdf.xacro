@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<robot xmlns:xacro="http://ros.org/wiki/xacro" name="UF_ROBOT">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="xarm_device">
   <!-- macro for having property with the same name/value as an argument -->
   <xacro:macro name="define_arg_property" params="prop_name default">
     <xacro:arg name="${prop_name}" default="${default}"/>
@@ -80,6 +80,7 @@
     attach_to="${robot_spec['attach_to']}" 
     attach_xyz="${robot_spec['attach_xyz']}" 
     attach_rpy="${robot_spec['attach_rpy']}"
+    create_attach_link="${robot_spec['create_attach_link']}"
 
     mesh_suffix="${robot_spec['mesh_suffix']}" 
     kinematics_suffix="${robot_spec['kinematics_suffix']}" 
