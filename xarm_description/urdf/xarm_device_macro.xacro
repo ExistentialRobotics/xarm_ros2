@@ -78,7 +78,27 @@
         <child link="${prefix}link_base" />
         <origin xyz="${attach_xyz}" rpy="${attach_rpy}" />
       </joint>
+
     </xacro:if>
+
+    <link name="${prefix}make_kinematic">
+      <gazebo>
+        <kinematic>true</kinematic>
+      </gazebo>
+      <inertial>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+        <mass value="100" />
+        <inertia
+          ixx="1.0" ixy="-3.5E-06" ixz="1.25E-05"
+          iyy="1.0" iyz="1.67E-06" izz="1.0" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}make_kinematic_joint" type="fixed">
+      <parent link="${prefix}link_base" />
+      <child link="${prefix}make_kinematic" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
 
     <xacro:if value="${effort_control}"> 
       <xacro:property name="hard_interface" value="EffortJointInterface" />
