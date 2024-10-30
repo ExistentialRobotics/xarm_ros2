@@ -88,26 +88,46 @@ def get_per_robot_stack(robot_idx, load_controller):
     )
 
     # gazebo spawn entity node
-    gazebo_spawn_entity_node = Node(
-        package="ros_gz_sim",
-        executable="create",
+    # gazebo_spawn_entity_node = Node(
+    #     package="ros_gz_sim",
+    #     executable="create",
+    #     namespace=this_robot_namespace,
+    #     output='screen',
+    #     arguments=[
+    #         '-topic', f'robot_description',
+    #         '-allow_renaming', 'false',
+    #         '-x', str(0.0 + robot_idx * 0.4),
+    #         '-y', '-0.3',
+    #         '-z', '1.021',
+    #         '-Y', '1.571',
+    #         '-timeout', '10000',
+    #     ],
+    #     parameters=[{'use_sim_time': True}],
+    # )
+
+    # nodes_to_launch.append(
+    #     gazebo_spawn_entity_node,
+    # )
+
+    spawn_entity_test_node = Node(
+        package="keti_gz_utils",
+        executable="create_on_table",
         namespace=this_robot_namespace,
         output='screen',
-        arguments=[
-            '-topic', f'robot_description',
-            '-allow_renaming', 'false',
-            '-x', str(0.0 + robot_idx * 0.4),
-            '-y', '-0.3',
-            '-z', '1.021',
-            '-Y', '1.571',
-            '-timeout', '10000',
-        ],
-        parameters=[{'use_sim_time': True}],
+        # NOTE: this version uses parameters instead of CLI arguments.
+        # This leads to cleaner dependencies.
+        parameters=[{
+            'use_sim_time': True,
+            'topic': 'robot_description',
+            'allow_renaming': False,
+            'x': 0.0 + robot_idx * 0.4,
+            'y': -0.3,
+            'z': 1.021,
+            'Y': 1.571
+        }],
     )
 
-    nodes_to_launch.append(
-        gazebo_spawn_entity_node,
-    )
+    nodes_to_launch.append(spawn_entity_test_node)
 
     # # Load controllers
     controllers = [
@@ -151,7 +171,7 @@ def get_per_robot_stack(robot_idx, load_controller):
         nodes_to_launch.append(
             RegisterEventHandler(
                 event_handler=OnProcessExit(
-                    target_action=gazebo_spawn_entity_node,
+                    target_action=spawn_entity_test_node,
                     on_exit=load_controllers
                 )
             )
