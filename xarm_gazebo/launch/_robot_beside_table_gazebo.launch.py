@@ -88,26 +88,46 @@ def get_per_robot_stack(robot_idx, load_controller):
     )
 
     # gazebo spawn entity node
-    gazebo_spawn_entity_node = Node(
-        package="ros_gz_sim",
-        executable="create",
+    # gazebo_spawn_entity_node = Node(
+    #     package="ros_gz_sim",
+    #     executable="create",
+    #     namespace=this_robot_namespace,
+    #     output='screen',
+    #     arguments=[
+    #         '-topic', f'robot_description',
+    #         '-allow_renaming', 'false',
+    #         '-x', str(0.0 + robot_idx * 0.4),
+    #         '-y', '-0.3',
+    #         '-z', '1.021',
+    #         '-Y', '1.571',
+    #         '-timeout', '10000',
+    #     ],
+    #     parameters=[{'use_sim_time': True}],
+    # )
+
+    # nodes_to_launch.append(
+    #     gazebo_spawn_entity_node,
+    # )
+
+    spawn_entity_test_node = Node(
+        package="keti_gz_utils",
+        executable="create_on_table",
         namespace=this_robot_namespace,
         output='screen',
-        arguments=[
-            '-topic', f'robot_description',
-            '-allow_renaming', 'false',
-            '-x', str(0.0 + robot_idx * 0.4),
-            '-y', '-0.3',
-            '-z', '1.021',
-            '-Y', '1.571',
-            '-timeout', '10000',
-        ],
-        parameters=[{'use_sim_time': True}],
+        # NOTE: this version uses parameters instead of CLI arguments.
+        # This leads to cleaner dependencies.
+        parameters=[{
+            'use_sim_time': True,
+            'topic': 'robot_description',
+            'allow_renaming': False,
+            'x': 0.0 + robot_idx * 0.4,
+            'y': -0.3,
+            'z': 1.021,
+            'Y': 1.571
+        }],
     )
 
-    nodes_to_launch.append(
-        gazebo_spawn_entity_node,
-    )
+    nodes_to_launch.append(spawn_entity_test_node)
 
     # # Load controllers
     controllers = [
@@ -151,7 +171,7 @@ def get_per_robot_stack(robot_idx, load_controller):
         nodes_to_launch.append(
             RegisterEventHandler(
                 event_handler=OnProcessExit(
-                    target_action=gazebo_spawn_entity_node,
+                    target_action=spawn_entity_test_node,
                     on_exit=load_controllers
                 )
             )
@@ -169,7 +189,7 @@ def generate_launch_description():
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': f'-v4 -r {world_sdf_path}',  
+            'gz_args': f' -r {world_sdf_path}',  
         }.items(),
     )
 
@@ -186,14 +206,26 @@ def generate_launch_description():
             [camera_namespace, '/camera_ired1@sensor_msgs/msg/Image@ignition.msgs.Image'],
             [camera_namespace, '/camera_ired2@sensor_msgs/msg/Image@ignition.msgs.Image'],
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/model/sensor_d455/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/model/xarm_device/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
         ]
     )
+
+    relay_nodes = [
+        Node(
+            package="topic_tools",
+            executable="relay",
+            arguments=[
+                f"/model/{source}/pose",
+                "/tf"
+            ]
+        ) for source in ["realsense2_camera", "xarm_device"]
+    ]
 
     nodes_to_launch = [
         gazebo_launch,
         parameters_bridge,
-    ]
+    ] + relay_nodes
 
     # Node for launching camera robot state publisher
     robot_state_publisher_node_camera = Node(

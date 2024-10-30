@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot xmlns:xacro="http://wiki.ros.org/xacro" name="xarm_srdf">
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="xarm_device">
   <xacro:macro name="xarm_macro_srdf" params="prefix:='' dof:=7 robot_type:='xarm'
     add_gripper:='false' add_vacuum_gripper:='false' add_bio_gripper:='false' add_other_geometry:='false' "> 
     <xacro:if value="${dof == 5}">
