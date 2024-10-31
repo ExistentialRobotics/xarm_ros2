@@ -183,7 +183,7 @@ def generate_launch_description():
     camera_robot_description = build_camera_description(camera_namespace=camera_namespace)
     load_controller_config = LaunchConfiguration('load_controller', default=True)
     num_robots_config = LaunchConfiguration('num_robots', default=1)
-    world_sdf_path = os.path.join(get_package_share_directory('main'), 'world', 'world.sdf') 
+    world_sdf_path = os.path.join(get_package_share_directory('main'), 'world', 'world_table.sdf') 
 
     # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
