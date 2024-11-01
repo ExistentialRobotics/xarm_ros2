@@ -2,7 +2,7 @@
 # Software License Agreement (BSD License)
 
 from launch import LaunchDescription
-from launch.actions import OpaqueFunction, IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import OpaqueFunction, IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
@@ -50,7 +50,10 @@ def generate_launch_description():
 
     return LaunchDescription([
         robot_gazebo_launch,
-        robot_moveit_common_launch,
+        TimerAction(
+            period=5.0,
+            actions=[robot_moveit_common_launch]
+        )
     ])
 
 # ros2 run tf2_ros static_transform_publisher --x 0.5 --y 0.9 --z 1.15 --roll 0 --pitch -1.57 --yaw -0.33 --frame-id world --child-frame-id camera_01_bottom_screw_frame
