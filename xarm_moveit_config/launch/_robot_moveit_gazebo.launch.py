@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Software License Agreement (BSD License)
 
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction, IncludeLaunchDescription, DeclareLaunchArgument

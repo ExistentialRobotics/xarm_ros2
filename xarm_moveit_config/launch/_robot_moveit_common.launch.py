@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Software License Agreement (BSD License)
 
 import os
 from ament_index_python import get_package_share_directory

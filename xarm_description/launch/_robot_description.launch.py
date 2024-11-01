@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Software License Agreement (BSD License)
 
 import os
 import sys
