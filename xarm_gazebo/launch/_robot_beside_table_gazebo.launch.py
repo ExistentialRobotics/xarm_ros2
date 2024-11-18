@@ -14,6 +14,8 @@ from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
 from uf_ros_lib.uf_robot_utils import get_xacro_command
 
+import yaml 
+
 def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_gripper = False):
     # ros2 control params
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='ign_ros2_control/IgnitionSystem')
@@ -28,6 +30,10 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
         update_rate=1000,
         robot_type='xarm'
     )
+
+    # Export the generated ros2 control params
+    with open(f'ros2_control_params.yaml', 'w') as file:
+        yaml.dump(ros2_control_params, file, sort_keys=False)
     print(f"Generated temporary control params at {ros2_control_params}")
 
     # robot_description
@@ -129,7 +135,7 @@ def get_per_robot_stack(robot_idx, load_controller):
 
     nodes_to_launch.append(spawn_entity_test_node)
 
-    # # Load controllers
+    # Load controllers
     controllers = [
         'joint_state_broadcaster',
         # the below becomes something like xarm0_xarm6_traj_controller. 
