@@ -2,7 +2,7 @@
 # hw_ns: 'xarm' # changes at runtime
 # ros2_control_plugin: 'uf_robot_hardware/UFRobotSystemHardware' # changes at runtime
 # ros2_control_params: '' # changes at runtime
-robot_ip: ''
+robot_ip: '192.168.1.242'
 dof: 6
 robot_type: 'xarm'
 report_type: 'normal'
