@@ -13,7 +13,7 @@ robot_sn: ''
 # control-related
 limited: false
 effort_control: false 
-velocity_control: false
+velocity_control: true
 # urdf-related
 attach_to: 'xarm_device' #TODO: this currently has to match the robot name in the URDF. Fix in gazebo to change frame id.
 attach_xyz: '0 0 0'
