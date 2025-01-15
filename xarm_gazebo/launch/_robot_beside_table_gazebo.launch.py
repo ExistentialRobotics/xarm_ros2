@@ -141,7 +141,9 @@ def get_per_robot_stack(robot_idx, load_controller):
         # the below becomes something like xarm0_xarm6_traj_controller. 
         # The first "xarm0" is from prefix. 
         # The second needs to match what's in xarm_control/config/*.yaml 
-        f'{this_robot_prefix}traj_controller',
+        # f'{this_robot_prefix}traj_controller',
+        f'{this_robot_prefix}velocity_controller',
+        # f'{this_robot_prefix}effort_controller',
     ]
     # TODO: fix gripper loading for controllers
 
