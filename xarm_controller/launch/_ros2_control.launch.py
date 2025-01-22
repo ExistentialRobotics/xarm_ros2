@@ -44,6 +44,22 @@ def launch_setup(context, *args, **kwargs):
         )
     }
 
+    robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[robot_description],
+        # BL: don't remap /tf to custom topics. 
+        # I.e., multiple robots publish to same /tf topic 
+        # Instead, use prefix to distinguish different robots
+        # remappings=[
+        #     ('/tf', 'tf'),
+        #     ('/tf_static', 'tf_static'),
+        # ]
+        # namespace=this_robot_namespace
+    )
+
+
     mod = load_python_launch_file_as_module(os.path.join(get_package_share_directory('xarm_api'), 'launch', 'lib', 'robot_api_lib.py'))
     generate_robot_api_params = getattr(mod, 'generate_robot_api_params')
     robot_params = generate_robot_api_params(
@@ -57,15 +73,18 @@ def launch_setup(context, *args, **kwargs):
         package='controller_manager',
         executable='ros2_control_node',
         parameters=[
-            robot_description,
             ros2_control_params,
             robot_params,
+        ],
+        remappings=[
+            ('~/robot_description', '/robot_description'),
         ],
         output='screen',
     )
 
     return [
-        ros2_control_node
+        ros2_control_node,
+        robot_state_publisher_node
     ]
 
 def generate_launch_description():
