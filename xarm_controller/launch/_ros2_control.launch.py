@@ -14,6 +14,7 @@ from uf_ros_lib.uf_robot_utils import get_xacro_command
 def launch_setup(context, *args, **kwargs):
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
+    kinematics_suffix = LaunchConfiguration('hw_ns', default='')
 
     ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotSystemHardware')
     xacro_file = LaunchConfiguration('xacro_file', default=PathJoinSubstitution([FindPackageShare('xarm_description'), 'urdf', 'xarm_device.urdf.xacro']))
@@ -40,6 +41,7 @@ def launch_setup(context, *args, **kwargs):
                 'hw_ns': hw_ns.perform(context).strip('/'),
                 'ros2_control_plugin': ros2_control_plugin,
                 'ros2_control_params': ros2_control_params,
+                'kinematics_suffix': kinematics_suffix, 
             }
         )
     }
