@@ -45,6 +45,7 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
                 'hw_ns': this_robot_namespace,
                 'ros2_control_plugin': ros2_control_plugin,
                 'ros2_control_params': ros2_control_params,
+                'kinematics_suffix': 'sim', # uses xarm_description/config/user/xarm6_kinematics_sim.yaml
             }
         ),
     }

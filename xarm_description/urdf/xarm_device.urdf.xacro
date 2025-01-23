@@ -11,6 +11,7 @@
   <xacro:arg name="hw_ns" default=""/>
   <xacro:arg name="ros2_control_plugin" default="uf_robot_hardware/UFRobotSystemHardware"/>
   <xacro:arg name="ros2_control_params" default=""/>
+  <xacro:arg name="kinematics_suffix" default=""/>
 
   <xacro:arg 
     name="robot_spec_config_file"
@@ -83,7 +84,7 @@
     create_attach_link="${robot_spec['create_attach_link']}"
 
     mesh_suffix="${robot_spec['mesh_suffix']}" 
-    kinematics_suffix="${robot_spec['kinematics_suffix']}" 
+    kinematics_suffix="$(arg kinematics_suffix)" 
 
     add_gripper="${add_end_effector['gripper']}" 
     add_vacuum_gripper="${add_end_effector['vacuum_gripper']}" 
