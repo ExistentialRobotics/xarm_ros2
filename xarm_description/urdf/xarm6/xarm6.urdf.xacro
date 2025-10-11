@@ -1,24 +1,38 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="xarm6_urdf" params="prefix
-    joint1_lower_limit:=${-2.0*pi}  joint1_upper_limit:=${2.0*pi}
-    joint2_lower_limit:=${-2.059}  joint2_upper_limit:=${2.0944}
-    joint3_lower_limit:=${-3.927}  joint3_upper_limit:=${0.19198}
-    joint4_lower_limit:=${-2.0*pi}  joint4_upper_limit:=${2.0*pi}
-    joint5_lower_limit:=${-1.69297}  joint5_upper_limit:=${pi}
-    joint6_lower_limit:=${-2.0*pi}  joint6_upper_limit:=${2.0*pi}
-    model1300:=false
+    joint1_lower_limit:=${-10.0*pi}  joint1_upper_limit:=${10.0*pi}
+    joint2_lower_limit:=${-10*pi}  joint2_upper_limit:=${10*pi}
+    joint3_lower_limit:=${-10*pi}  joint3_upper_limit:=${10*pi}
+    joint4_lower_limit:=${-10*pi}  joint4_upper_limit:=${10*pi}
+    joint5_lower_limit:=${-10*pi}  joint5_upper_limit:=${10*pi}
+    joint6_lower_limit:=${-10*pi}  joint6_upper_limit:=${10*pi}
+    model_num:=0
     inertial_params_filename:='' kinematics_params_filename:='' "
     >
 
     <!-- define property -->
-    <xacro:if value="${model1300}">
-      <xacro:property name="end_tool_visual_filename" value="end_tool/visual/end_tool_1300"/>
-      <xacro:property name="end_tool_collision_filename" value="end_tool/collision/end_tool_1300"/>
+    <xacro:if value="${model_num >= 1305 and model_num != 1380}">
+      <xacro:property name="visual_dir" value="xarm6_1305/visual"/>
+      <xacro:property name="collision_dir" value="xarm6_1305/collision"/>
+      <xacro:property name="add_mesh_suffix" value="false"/>
+      <xacro:property name="collison_mesh_suffix" value="obj"/>
+      <xacro:property name="link6_visual" value="xarm6_1305/visual/link6"/>
+      <xacro:property name="link6_collision" value="xarm6_1305/collision/link6"/>
     </xacro:if>
-    <xacro:unless value="${model1300}">
-      <xacro:property name="end_tool_visual_filename" value="xarm6/visual/link6"/>
-      <xacro:property name="end_tool_collision_filename" value="end_tool/collision/end_tool"/>
+    <xacro:unless value="${model_num >= 1305 and model_num != 1380}">
+      <xacro:property name="visual_dir" value="xarm6/visual"/>
+      <xacro:property name="collision_dir" value="xarm6/visual"/>
+      <xacro:property name="add_mesh_suffix" value="true"/>
+      <xacro:property name="collison_mesh_suffix" value="stl"/>
+      <xacro:if value="${model_num >= 1300}">
+        <xacro:property name="link6_visual" value="end_tool/visual/end_tool_1300"/>
+        <xacro:property name="link6_collision" value="end_tool/collision/end_tool_1300"/>
+      </xacro:if>
+      <xacro:unless value="${model_num >= 1300}">
+        <xacro:property name="link6_visual" value="xarm6/visual/link6"/>
+        <xacro:property name="link6_collision" value="end_tool/collision/end_tool"/>
+      </xacro:unless>
     </xacro:unless>
     
     <!-- load params and define property -->
@@ -48,12 +62,14 @@
           iyy="0.00494174" iyz="1.67E-06" izz="0.002219" />
       </inertial>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link_base"  
+        mesh_filename="${visual_dir}/link_base"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link_base"  
+        mesh_filename="${collision_dir}/link_base" 
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}" 
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -63,12 +79,14 @@
         link_inertial_params="${inertial_params['link1']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link1"  
+        mesh_filename="${visual_dir}/link1"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link1"  
+        mesh_filename="${collision_dir}/link1"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -85,6 +103,7 @@
         effort="50.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>0.0</initial_position>
     </joint>
 
     <link name="${prefix}link2">
@@ -92,20 +111,22 @@
         link_inertial_params="${inertial_params['link2']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link2"  
-        origin_xyz="0 0 ${-kinematics_params['joint2']['y']}" 
+        mesh_filename="${visual_dir}/link2"  
+        origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link2"  
-        origin_xyz="0 0 ${-kinematics_params['joint2']['y']}" 
+        mesh_filename="${collision_dir}/link2"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
+        origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
 
     <joint name="${prefix}joint2" type="revolute">
       <parent link="${prefix}link1"/>
       <child link="${prefix}link2"/>
-      <origin xyz="0 0 0" rpy="-1.5708 -0.5 0" />
+      <!-- <origin xyz="0 0 0" rpy="-1.5708 0 0" /> -->
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint2']}" />
       <axis xyz="0 0 1"/>
       <limit
@@ -114,6 +135,7 @@
         effort="50.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>-0.78</initial_position>
     </joint>
 
     <link name="${prefix}link3">
@@ -121,12 +143,14 @@
         link_inertial_params="${inertial_params['link3']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link3"  
+        mesh_filename="${visual_dir}/link3"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link3"  
+        mesh_filename="${collision_dir}/link3"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -134,7 +158,7 @@
     <joint name="${prefix}joint3" type="revolute">
       <parent link="${prefix}link2"/>
       <child link="${prefix}link3"/>
-      <origin xyz="0.0535 -0.2845 0" rpy="0 0 -0.5"/>
+      <!-- <origin xyz="0.0535 -0.2845 0" rpy="0 0 0"/> -->
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint3']}" />
       <axis xyz="0 0 1"/>
       <limit
@@ -143,6 +167,7 @@
         effort="32.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>-0.78</initial_position>
     </joint>
 
     <link name="${prefix}link4">
@@ -150,12 +175,14 @@
         link_inertial_params="${inertial_params['link4']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link4"  
+        mesh_filename="${visual_dir}/link4"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link4"  
+        mesh_filename="${collision_dir}/link4"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -172,6 +199,7 @@
         effort="32.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>0.0</initial_position>
     </joint>
 
     <link name="${prefix}link5">
@@ -179,12 +207,14 @@
         link_inertial_params="${inertial_params['link5']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="xarm6/visual/link5"  
+        mesh_filename="${visual_dir}/link5"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}White" />
       <xacro:common_link_collision 
-        mesh_filename="xarm6/visual/link5"  
+        mesh_filename="${collision_dir}/link5"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -192,7 +222,6 @@
     <joint name="${prefix}joint5" type="revolute">
       <parent link="${prefix}link4"/>
       <child link="${prefix}link5"/>
-      <origin xyz="0.0 0.0 0.0" rpy="1.5708 -0.95 0.0"/>
       <xacro:common_joint_origin joint_kinematic_params="${kinematics_params['joint5']}" />
       <axis xyz="0 0 1"/>
       <limit
@@ -201,6 +230,7 @@
         effort="32.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>1.5708</initial_position>
     </joint>
 
     <link name="${prefix}link6">
@@ -208,12 +238,14 @@
         link_inertial_params="${inertial_params['link6']}" 
         origin_rpy="0 0 0"/>
       <xacro:common_link_visual 
-        mesh_filename="${end_tool_visual_filename}"  
+        mesh_filename="${link6_visual}"  
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0"
         material_name="${prefix}Silver" />
       <xacro:common_link_collision 
-        mesh_filename="${end_tool_collision_filename}"  
+        mesh_filename="${link6_collision}"  
+        add_mesh_suffix="${add_mesh_suffix}" 
+        other_mesh_suffix="${collison_mesh_suffix}"
         origin_xyz="0 0 0" 
         origin_rpy="0 0 0" />
     </link>
@@ -230,8 +262,109 @@
         effort="20.0"
         velocity="3.14"/>
       <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>0.0</initial_position>
     </joint>
 
+  <link name="${prefix}ee_stick">
+    <visual>
+      <geometry>
+        <cylinder length="0.35" radius="0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.16"/>
+      <material name="Purple">
+        <color rgba="0.5 0 0.5 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.35" radius="0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.16"/>
+    </collision>
+  </link>
+  <joint name="${prefix}joint_ee_stick" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 -0.015"/>
+    <parent link="${prefix}link6"/>
+    <child link="${prefix}ee_stick"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <link name="${prefix}ee_tip">
+    <!-- Visual marker for end effector tip -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    
+    <!-- Coordinate frame visualization -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.002" length="0.05"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    
+    <!-- X-axis marker -->
+    <visual>
+      <origin xyz="0.025 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.001" length="0.05"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0 1 0 1"/>
+      </material>
+    </visual>
+    
+    <!-- Y-axis marker -->
+    <visual>
+      <origin xyz="0 0.025 0" rpy="0 0 1.5708"/>
+      <geometry>
+        <cylinder radius="0.001" length="0.05"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="1 1 0 1"/>
+      </material>
+    </visual>
+    
+    <!-- Z-axis marker -->
+    <visual>
+      <origin xyz="0 0 0.025" rpy="0 -1.5708 0"/>
+      <geometry>
+        <cylinder radius="0.001" length="0.05"/>
+      </geometry>
+      <material name="magenta">
+        <color rgba="1 0 1 1"/>
+      </material>
+    </visual>
+    
+    <!-- Collision geometry for end effector tip -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </collision>
+    
+    <!-- Inertial properties -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.001"/>
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
+    </inertial>
+  </link>
+  <joint name="${prefix}joint_ee_tip" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.335"/>
+    <parent link="${prefix}ee_stick"/>
+    <child link="${prefix}ee_tip"/>
+    <axis xyz="0 0 0"/>
+  </joint>
     <!-- <link name="${prefix}link_eef" />
     <joint name="${prefix}joint_eef" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0" />

@@ -8,7 +8,7 @@ robot_type: 'xarm'
 report_type: 'normal'
 baud_checkset: true
 default_gripper_baud: 2000000 
-model1300: false
+model_num: 0
 robot_sn: '' 
 # control-related
 limited: false

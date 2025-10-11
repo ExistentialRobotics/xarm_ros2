@@ -45,6 +45,7 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
                 'hw_ns': this_robot_namespace,
                 'ros2_control_plugin': ros2_control_plugin,
                 'ros2_control_params': ros2_control_params,
+                'robot_spec_config_file': PathJoinSubstitution([FindPackageShare('xarm_description'), 'config', 'default_urdf_arguments', 'xarm6.yaml']),
             }
         ),
     }
@@ -126,10 +127,10 @@ def get_per_robot_stack(robot_idx, load_controller):
             'use_sim_time': True,
             'topic': 'robot_description',
             'allow_renaming': False,
-            'x': 0.0 + robot_idx * 0.4,
-            'y': -0.3,
-            'z': 1.021,
-            'Y': 1.571
+            'x': -0.1,
+            'y': 0.0,
+            'z': 0.0,
+            'Y': 0.0
         }],
     )
 
@@ -182,6 +183,22 @@ def get_per_robot_stack(robot_idx, load_controller):
                 )
             )
         )
+        
+        # Add initial pose setter node
+        initial_pose_setter = TimerAction(
+            period=8.0,
+            actions=[
+                Node(
+                    package='xarm_description',
+                    executable='set_initial_pose.py',
+                    output='screen',
+                    parameters=[{'use_sim_time': True}],
+                )
+            ]
+        )
+        
+        nodes_to_launch.append(initial_pose_setter)
+        
     return nodes_to_launch
 
 def generate_launch_description():
@@ -189,13 +206,13 @@ def generate_launch_description():
     camera_robot_description = build_camera_description(camera_namespace=camera_namespace)
     load_controller_config = LaunchConfiguration('load_controller', default=True)
     num_robots_config = LaunchConfiguration('num_robots', default=1)
-    world_sdf_path = os.path.join(get_package_share_directory('main'), 'world', 'world_table.sdf') 
+    world_path = os.path.join(get_package_share_directory('xarm_gazebo'), 'worlds', 'table.world') 
 
     # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': f' -r {world_sdf_path}',  
+            'gz_args': f' -r {world_path}',  
         }.items(),
     )
 
@@ -281,4 +298,8 @@ def generate_launch_description():
         )
 
     launch_all_robots = OpaqueFunction(function=_launch_all_robots)
-    return LaunchDescription(nodes_to_launch + [launch_all_robots])
+    return LaunchDescription([
+        DeclareLaunchArgument('camera_namespace', default_value='camera_01', description='Camera namespace'),
+        DeclareLaunchArgument('load_controller', default_value='true', description='Whether to load controllers'),
+        DeclareLaunchArgument('num_robots', default_value='1', description='Number of robots to spawn'),
+    ] + nodes_to_launch + [launch_all_robots])

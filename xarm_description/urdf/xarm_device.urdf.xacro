@@ -70,7 +70,7 @@
     report_type="${robot_spec['report_type']}"
     baud_checkset="${robot_spec['baud_checkset']}" 
     default_gripper_baud="${robot_spec['default_gripper_baud']}"
-    model1300="${robot_spec['model1300']}" 
+    model_num="${robot_spec['model_num']}" 
     robot_sn="${robot_spec['robot_sn']}" 
 
     limited="${robot_spec['limited']}" 

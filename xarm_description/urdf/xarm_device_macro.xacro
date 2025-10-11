@@ -36,7 +36,7 @@
     report_type:='normal'
     baud_checkset:=true
     default_gripper_baud:=2000000 
-    model1300:=false
+    model_num:=0
     robot_sn:='' 
     mesh_suffix:='stl' 
     kinematics_suffix:=''
@@ -63,9 +63,9 @@
 
     <!-- include common.link.xacro -->
     <xacro:include filename="$(find xarm_description)/urdf/common/common.link.xacro" />
-    <xacro:parse_link_inertial_filename dof="${dof}" robot_type="${robot_type}" robot_sn="${robot_sn}" model1300="${model1300}" />
+    <xacro:parse_link_inertial_filename dof="${dof}" robot_type="${robot_type}" robot_sn="${robot_sn}" model_num="${model_num}" />
     <xacro:property name="inertial_params_filename" value="${scope_parent_inertial_params_filename}"/>
-    <xacro:property name="new_model1300" value="${scope_parent_model1300}"/>
+    <xacro:property name="new_model_num" value="${scope_parent_model_num}"/>
 
     <!-- add one world link if no 'attach_to' specified  -->
     <xacro:if value="${attach_to != ''}"> 
@@ -137,7 +137,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}"
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -169,7 +169,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}"
-          model1300="${new_model1300}"
+          model_num="${model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -188,7 +188,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}" 
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -205,7 +205,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}" 
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />

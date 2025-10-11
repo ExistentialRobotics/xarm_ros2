@@ -38,7 +38,14 @@ install(DIRECTORY
   config
   meshes
   launch
+  scripts
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install Python scripts with executable permissions
+install(PROGRAMS
+  scripts/set_initial_pose.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
