@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 import os
 from ament_index_python import get_package_share_directory
@@ -18,22 +13,20 @@ from launch.actions import RegisterEventHandler, EmitEvent
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 
+import yaml 
+from uf_ros_lib.moveit_configs_builder import MoveItConfigsBuilder
 
 def launch_setup(context, *args, **kwargs):
-    prefix = LaunchConfiguration('prefix', default='')
-    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
-    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
-
     controllers_name = LaunchConfiguration('controllers_name', default='fake_controllers')
+    hw_ns = LaunchConfiguration('hw_ns', default='xarm')
     moveit_controller_manager_key = LaunchConfiguration('moveit_controller_manager_key', default='moveit_fake_controller_manager')
     moveit_controller_manager_value = LaunchConfiguration('moveit_controller_manager_value', default='moveit_fake_controller_manager/MoveItFakeControllerManager')
-
-    use_sim_time = LaunchConfiguration('use_sim_time', default=False)
-
     moveit_config_package_name = 'xarm_moveit_config'
-    # xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
-    xarm_type='xarm6' #TODO: fix
+    no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
+    prefix = LaunchConfiguration('prefix', default='')
+    robot_type = LaunchConfiguration('robot_type', default='')
+    ros2_control_plugin = LaunchConfiguration('ros2_control_plugin', default='uf_robot_hardware/UFRobotFakeSystemHardware')
+    use_sim_time = LaunchConfiguration('use_sim_time', default=False)
     
     # robot_description_parameters
     # xarm_moveit_config/launch/lib/robot_moveit_config_lib.py
@@ -48,7 +41,7 @@ def launch_setup(context, *args, **kwargs):
             'ros2_control_plugin': ros2_control_plugin,
         },
         srdf_arguments={
-            'prefix': prefix,
+            'prefix': 'xarm6_',
             # 'dof': dof,
             # 'robot_type': robot_type,
             # 'add_gripper': add_gripper,
@@ -57,13 +50,13 @@ def launch_setup(context, *args, **kwargs):
         },
         arguments={
             'context': context,
-            'xarm_type': xarm_type,
+            'xarm_type': robot_type.perform(context),
         }
     )
 
     load_yaml = getattr(mod, 'load_yaml')
-    controllers_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, '{}.yaml'.format(controllers_name.perform(context)))
-    ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', xarm_type, 'ompl_planning.yaml')
+    controllers_yaml = load_yaml(moveit_config_package_name, 'config', robot_type.perform(context), '{}.yaml'.format(controllers_name.perform(context)))
+    ompl_planning_yaml = load_yaml(moveit_config_package_name, 'config', robot_type.perform(context), 'ompl_planning.yaml')
     kinematics_yaml = robot_description_parameters['robot_description_kinematics']
     joint_limits_yaml = robot_description_parameters.get('robot_description_planning', None)
 
@@ -167,18 +160,19 @@ def launch_setup(context, *args, **kwargs):
         # },
     }
 
-    # sensor_manager_parameters = {
-    #     'sensors': ['ros'],
-    #     'octomap_resolution': 0.02,
-    #     'ros.sensor_plugin': 'occupancy_map_monitor/PointCloudOctomapUpdater',
-    #     'ros.point_cloud_topic': '/camera/depth/color/points',
-    #     'ros.max_range': 2.0,
-    #     'ros.point_subsample': 1,
-    #     'ros.padding_offset': 0.1,
-    #     'ros.padding_scale': 1.0,
-    #     'ros.max_update_rate': 1.0,
-    #     'ros.filtered_cloud_topic': 'filtered_cloud',
-    # }
+    sensor_manager_parameters = {
+        'sensors': ['realsense_points'],
+        'realsense_points': {
+            'sensor_plugin': 'occupancy_map_monitor/PointCloudOctomapUpdater',
+            'point_cloud_topic': '/camera_01/camera_depth/points',
+            'max_range': 2.0,
+            'point_subsample': 1,
+            'padding_offset': 0.1,
+            'padding_scale': 1.0,
+            'max_update_rate': 1.0,
+            'filtered_cloud_topic': 'filtered_cloud',
+        }
+    }
 
     # Start the actual move_group node/action server
     move_group_node = Node(
@@ -192,8 +186,12 @@ def launch_setup(context, *args, **kwargs):
             plan_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
-            # sensor_manager_parameters,
-            {'use_sim_time': use_sim_time},
+            sensor_manager_parameters,
+            {'use_sim_time': use_sim_time},  # Simulation time flag
+            {'octomap_topic': '/octomap_full'},  # Octomap topic name
+            {'octomap_resolution': 0.05},  # Resolution of the Octomap
+            {'octomap_queue_size': 100},  # Queue size for the Octomap topic
+            {'publish_robot_description_semantic': True},
         ],
     )
 
@@ -214,7 +212,7 @@ def launch_setup(context, *args, **kwargs):
         remappings=[
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
-        ]
+        ],
     )
 
     # xyz = attach_xyz.perform(context)[1:-1].split(' ')

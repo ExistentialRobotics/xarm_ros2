@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<robot xmlns:xacro="http://ros.org/wiki/xacro" name="UF_ROBOT">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="xarm_device">
   <!-- macro for having property with the same name/value as an argument -->
   <xacro:macro name="define_arg_property" params="prop_name default">
     <xacro:arg name="${prop_name}" default="${default}"/>
@@ -8,9 +8,10 @@
   </xacro:macro>
 
   <xacro:arg name="prefix" default=""/>
-  <xacro:arg name="hw_ns" default="xarm"/>
+  <xacro:arg name="hw_ns" default=""/>
   <xacro:arg name="ros2_control_plugin" default="uf_robot_hardware/UFRobotSystemHardware"/>
   <xacro:arg name="ros2_control_params" default=""/>
+  <xacro:arg name="kinematics_suffix" default=""/>
 
   <xacro:arg 
     name="robot_spec_config_file"
@@ -80,9 +81,10 @@
     attach_to="${robot_spec['attach_to']}" 
     attach_xyz="${robot_spec['attach_xyz']}" 
     attach_rpy="${robot_spec['attach_rpy']}"
+    create_attach_link="${robot_spec['create_attach_link']}"
 
     mesh_suffix="${robot_spec['mesh_suffix']}" 
-    kinematics_suffix="${robot_spec['kinematics_suffix']}" 
+    kinematics_suffix="$(arg kinematics_suffix)" 
 
     add_gripper="${add_end_effector['gripper']}" 
     add_vacuum_gripper="${add_end_effector['vacuum_gripper']}" 
