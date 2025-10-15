@@ -94,28 +94,6 @@ def get_per_robot_stack(robot_idx, load_controller):
         robot_state_publisher_node            
     )
 
-    # gazebo spawn entity node
-    # gazebo_spawn_entity_node = Node(
-    #     package="ros_gz_sim",
-    #     executable="create",
-    #     namespace=this_robot_namespace,
-    #     output='screen',
-    #     arguments=[
-    #         '-topic', f'robot_description',
-    #         '-allow_renaming', 'false',
-    #         '-x', str(0.0 + robot_idx * 0.4),
-    #         '-y', '-0.3',
-    #         '-z', '1.021',
-    #         '-Y', '1.571',
-    #         '-timeout', '10000',
-    #     ],
-    #     parameters=[{'use_sim_time': True}],
-    # )
-
-    # nodes_to_launch.append(
-    #     gazebo_spawn_entity_node,
-    # )
-
     spawn_entity_test_node = Node(
         package="keti_gz_utils",
         executable="create_on_table",
@@ -144,16 +122,6 @@ def get_per_robot_stack(robot_idx, load_controller):
         # The second needs to match what's in xarm_control/config/*.yaml 
         f'{this_robot_prefix}traj_controller',
     ]
-    # TODO: fix gripper loading for controllers
-
-    # if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true'):
-    #     controllers.append(
-    #         f'{prefix.perform(context)}{robot_type.perform(context)}_gripper_traj_controller'
-    #     )
-    # elif robot_type.perform(context) != 'lite' and add_bio_gripper.perform(context) in ('True', 'true'):
-    #     controllers.append(
-    #         f'{prefix.perform(context)}bio_gripper_traj_controller'
-    #     )
 
     if load_controller:
         load_controllers = [
@@ -231,6 +199,9 @@ def generate_launch_description():
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
             '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
             '/model/xarm_device/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/model/block/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/model/goal/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/model/table_box/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
         ]
     )
 
@@ -242,7 +213,7 @@ def generate_launch_description():
                 f"/model/{source}/pose",
                 "/tf"
             ]
-        ) for source in ["realsense2_camera", "xarm_device"]
+        ) for source in ["realsense2_camera", "xarm_device", "block", "goal", "table_box"]
     ]
 
     nodes_to_launch = [
@@ -287,6 +258,21 @@ def generate_launch_description():
     )
 
     nodes_to_launch.append(delayed_spawn)
+
+    # Node for publishing environment pose
+    env_pose_publisher = Node(
+        package='xarm_gazebo',
+        executable='env_publisher.py',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
+    delayed_pose_publisher = TimerAction(
+        period=5.0,  # Delay 5 seconds to ensure Gazebo is fully loaded
+        actions=[env_pose_publisher]
+    )
+
+    nodes_to_launch.append(delayed_pose_publisher)
 
     def _launch_all_robots(context):
         return sum(

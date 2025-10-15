@@ -1,13 +1,7 @@
 <?xml version="1.0" ?>
   <sdf version="1.4">
   <world name="default">
-    <!-- Plugin to publish model states -->
-    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
-      <update_rate>50.0</update_rate>
-      <ros>
-        <namespace>/</namespace>
-      </ros>
-    </plugin>
+    <!-- Plugin to publish model states - removed as not compatible with Ignition Gazebo -->
     <include>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
     </include>
@@ -17,21 +11,21 @@
     <!-- Replace prefab table with a simple 10x10x1 m box table -->
     <model name="table_box">
 
-      <!-- Place so the base sits on ground: z = height/2 = 0.5 -->
-      <pose>0.7 0.0 0.054 0 0 0</pose>
+      <!-- Place so the base sits on ground: z = height/2 = 0.054 -->
+      <pose>0.5 0.0 0.054 0 0 0</pose>
       <static>true</static>
       <link name="table_link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>1 1 0.108</size>
+              <size>0.8 1.0 0.108</size>
             </box>
           </geometry>
           <surface>
             <friction>
               <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
+                <mu>0.300</mu>
+                <mu2>0.300</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.0</slip1>
                 <slip2>0.0</slip2>
@@ -44,8 +38,8 @@
                 <min_depth>0.0001</min_depth>
                 <max_vel>100.0</max_vel>
                 <fdir1>0 0 0</fdir1>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
+                <mu>0.300</mu>
+                <mu2>0.300</mu2>
                 <slip1>0.0</slip1>
                 <slip2>0.0</slip2>
               </ode>
@@ -59,9 +53,14 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>1 1 0.108</size>
+              <size>0.8 1.0 0.108</size>
             </box>
           </geometry>
+          <material>
+            <ambient>1.0 0.471 0.224 1.0</ambient>
+            <diffuse>1.0 0.471 0.224 1.0</diffuse>
+            <specular>0.5 0.235 0.112 1.0</specular>
+          </material>
         </visual>
         <inertial>
           <mass>10.0</mass>
@@ -76,19 +75,14 @@
         </inertial>
       </link>
       
-      <!-- Contact sensor for table surface -->
-      <plugin name="table_contact_sensor" filename="libgazebo_ros_contact_sensor.so">
-        <contact_topic>table_contacts</contact_topic>
-        <collision_name>collision</collision_name>
-        <update_rate>100.0</update_rate>
-      </plugin>
+      <!-- Contact sensor for table surface - removed as not compatible with Ignition Gazebo -->
     </model>
 
     <!-- Bare minimal block -->
     
     <!-- Bare minimal block with state-publisher plugin -->
     <model name="block">
-      <pose>0.38 0.0 0.142 0 0 0</pose>
+      <pose>0.400 0.000 0.142 0 0 0</pose>
       <static>false</static>
       
      
@@ -103,8 +97,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.6</mu>
-                <mu2>0.6</mu2>
+                <mu>0.300</mu>
+                <mu2>0.300</mu2>
                 <fdir1>0 0 0</fdir1>
                 <slip1>0.0</slip1>
                 <slip2>0.0</slip2>
@@ -117,8 +111,8 @@
                 <min_depth>0.0001</min_depth>
                 <max_vel>100.0</max_vel>
                 <fdir1>0 0 0</fdir1>
-                <mu>0.6</mu>
-                <mu2>0.6</mu2>
+                <mu>0.300</mu>
+                <mu2>0.300</mu2>
                 <slip1>0.0</slip1>
                 <slip2>0.0</slip2>
               </ode>
@@ -136,9 +130,9 @@
             </box>
           </geometry>
           <material>
-            <ambient>1.0 1.0 0.0 1.0</ambient>
-            <diffuse>1.0 1.0 0.0 1.0</diffuse>
-            <specular>0.5 0.5 0.0 1.0</specular>
+            <ambient>0.2 0.2 0.8 1.0</ambient>
+            <diffuse>0.2 0.2 0.8 1.0</diffuse>
+            <specular>0.1 0.1 0.4 1.0</specular>
           </material>
         </visual>
         <inertial>
@@ -154,12 +148,41 @@
         </inertial>
       </link>
       
-      <!-- Contact sensor for manipulation feedback -->
-      <plugin name="contact_sensor" filename="libgazebo_ros_contact_sensor.so">
-        <contact_topic>block_contacts</contact_topic>
-        <collision_name>collision</collision_name>
-        <update_rate>100.0</update_rate>
-      </plugin>
+      <!-- Contact sensor for manipulation feedback - removed as not compatible with Ignition Gazebo -->
+    </model>
+
+    <!-- Goal area for manipulation target -->
+    <model name="goal">
+      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.524</pose>
+      <static>true</static>
+      
+      <link name="link">
+        <!-- No collision geometry - purely visual -->
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.162 0.086 0.0005</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.466 0.867 0.466 1.0</ambient>
+            <diffuse>0.466 0.867 0.466 1.0</diffuse>
+            <specular>0.233 0.433 0.233 1.0</specular>
+          </material>
+        </visual>
+        <!-- Minimal inertial properties for static object -->
+        <inertial>
+          <mass>0.001</mass>
+          <inertia>
+            <ixx>0.000001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.000001</iyy>
+            <iyz>0</iyz>
+            <izz>0.000001</izz>
+          </inertia>
+        </inertial>
+      </link>
     </model>
 
     <physics type="ode">
