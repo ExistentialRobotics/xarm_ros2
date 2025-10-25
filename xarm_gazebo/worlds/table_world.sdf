@@ -24,26 +24,6 @@
       <shadows>true</shadows>
     </scene>
 
-    <!-- World-level pose publisher to emit model poses (including block) -->
-    <plugin filename="ignition-gazebo-pose-publisher-system" name="gz::sim::systems::PosePublisher">
-      <publish_link_pose>false</publish_link_pose>
-      <publish_visual_pose>false</publish_visual_pose>
-      <publish_collision_pose>false</publish_collision_pose>
-      <publish_sensor_pose>false</publish_sensor_pose>
-      <publish_model_pose>true</publish_model_pose>
-      <publish_nested_model_pose>false</publish_nested_model_pose>
-      <use_pose_vector_msg>true</use_pose_vector_msg>
-      <update_frequency>30</update_frequency>
-    </plugin>
-
-    
-    <!-- Vans_Cereal_Honey_Nut_Crunch_11_oz_box -->
-    <!-- <include>
-      <uri>https://fuel.gazebosim.org/1.0/GoogleResearch/models/Vans_Cereal_Honey_Nut_Crunch_11_oz_box</uri>
-      <name>Vans_Cereal_Honey_Nut_Crunch_11_oz_box</name>
-      <pose>0.5 0.2 1.02 0 0 -0.7</pose> 
-    </include> -->
-
     <!-- Replace prefab table with a simple 10x10x1 m box table -->
     <model name="table_box">
       <!-- Place so the base sits on ground: z = height/2 = 0.054 -->
@@ -119,9 +99,6 @@
     <model name="block">
       <pose>0.400 0.000 0.142 0 0 0</pose>
       <static>false</static>
-      
-     
-
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -183,23 +160,36 @@
         </inertial>
       </link>
       
+      <!-- PosePublisher moved to world level for better compatibility -->
+
+      <!-- Contact sensor for manipulation feedback - removed as not compatible with Ignition Gazebo -->
       <plugin filename="ignition-gazebo-pose-publisher-system" name="gz::sim::systems::PosePublisher">
         <publish_link_pose>false</publish_link_pose>
         <publish_visual_pose>false</publish_visual_pose>
         <publish_collision_pose>false</publish_collision_pose>
         <publish_sensor_pose>false</publish_sensor_pose>
         <publish_model_pose>true</publish_model_pose>
-        <publish_nested_model_pose>false</publish_nested_model_pose>
+        <publish_nested_model_pose>true</publish_nested_model_pose>
         <use_pose_vector_msg>true</use_pose_vector_msg>
-        <update_frequency>30</update_frequency>
+        <update_frequency>10</update_frequency>
+        <static_publisher>false</static_publisher>
+        <static_update_frequency>10</static_update_frequency>
       </plugin>
-
-      <!-- Contact sensor for manipulation feedback - removed as not compatible with Ignition Gazebo -->
     </model>
 
     <!-- Goal area for manipulation target -->
     <model name="goal">
-      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.524</pose>
+      <!-- <pose rotation_format="euler_rpy">0.65 0.0 0.108 0 0 0</pose>      # goal_pose_c_00
+      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.523</pose>   # goal_pose_l_30
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -0.523</pose> # goal_pose_r_30
+      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.785</pose>   # goal_pose_l_45
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -0.785</pose> # goal_pose_r_45
+      <pose rotation_format="euler_rpy">0.65 0.2 0.108 0 0 1.047</pose>   # goal_pose_l_60
+      <pose rotation_format="euler_rpy">0.65 -0.2 0.108 0 0 -1.047</pose> # goal_pose_r_60
+      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 1.570</pose>   # goal_pose_l_90
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -1.570</pose> # goal_pose_r_90 -->
+
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -0.523</pose> # goal_pose_r_30
       <static>true</static>
       
       <link name="link">

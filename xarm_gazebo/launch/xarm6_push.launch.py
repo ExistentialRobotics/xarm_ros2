@@ -2,6 +2,7 @@
 
 import os
 import xacro
+import math
 from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import load_python_launch_file_as_module
 from launch import LaunchDescription
@@ -105,7 +106,7 @@ def get_per_robot_stack(robot_idx, load_controller):
             'use_sim_time': True,
             'topic': 'robot_description',
             'allow_renaming': False,
-            'x': -0.1,
+            'x': 0.0,
             'y': 0.0,
             'z': 0.0,
             'Y': 0.0
@@ -152,21 +153,6 @@ def get_per_robot_stack(robot_idx, load_controller):
             )
         )
         
-        # Add initial pose setter node
-        initial_pose_setter = TimerAction(
-            period=8.0,
-            actions=[
-                Node(
-                    package='xarm_description',
-                    executable='set_initial_pose.py',
-                    output='screen',
-                    parameters=[{'use_sim_time': True}],
-                )
-            ]
-        )
-        
-        nodes_to_launch.append(initial_pose_setter)
-        
     return nodes_to_launch
 
 def generate_launch_description():
@@ -174,13 +160,13 @@ def generate_launch_description():
     camera_robot_description = build_camera_description(camera_namespace=camera_namespace)
     load_controller_config = LaunchConfiguration('load_controller', default=True)
     num_robots_config = LaunchConfiguration('num_robots', default=1)
-    world_path = os.path.join(get_package_share_directory('xarm_gazebo'), 'worlds', 'table.world') 
+    world_path = os.path.join(get_package_share_directory('xarm_gazebo'), 'worlds', 'table_world.sdf')
 
     # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': f' -r {world_path}',  
+            'gz_args': f' -r {world_path}',
         }.items(),
     )
 
@@ -196,12 +182,11 @@ def generate_launch_description():
             [camera_namespace, '/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo'],
             [camera_namespace, '/camera_ired1@sensor_msgs/msg/Image@ignition.msgs.Image'],
             [camera_namespace, '/camera_ired2@sensor_msgs/msg/Image@ignition.msgs.Image'],
-            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            '/model/xarm_device/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            '/model/block/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            '/model/goal/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            '/model/table_box/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/clock@rosgraph_msgs/msg/Clock@ignition.msgs.Clock',
+            '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            '/model/xarm_device/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            '/model/block/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            # Note: goal and table_box poses are handled by env_publisher.py for static reference
         ]
     )
 
@@ -213,13 +198,20 @@ def generate_launch_description():
                 f"/model/{source}/pose",
                 "/tf"
             ]
-        ) for source in ["realsense2_camera", "xarm_device", "block", "goal", "table_box"]
+        ) for source in ["realsense2_camera", "xarm_device", "block"]
+        # Note: goal and table_box relay handled by env_publisher.py for static reference poses
     ]
+
+    # Delay parameter_bridge to ensure Gazebo models are fully loaded
+    delayed_parameter_bridge = TimerAction(
+        period=3.0,  # Delay 3 seconds to ensure Gazebo models are loaded
+        actions=[parameters_bridge] + relay_nodes
+    )
 
     nodes_to_launch = [
         gazebo_launch,
-        parameters_bridge,
-    ] + relay_nodes
+        delayed_parameter_bridge,
+    ]
 
     # Node for launching camera robot state publisher
     robot_state_publisher_node_camera = Node(

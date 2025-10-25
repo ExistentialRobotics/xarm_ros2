@@ -38,14 +38,10 @@ install(DIRECTORY
   config
   meshes
   launch
-  scripts
   DESTINATION share/${PROJECT_NAME}/
 )
 
 # Install Python scripts with executable permissions
-install(PROGRAMS
-  scripts/set_initial_pose.py
-  DESTINATION lib/${PROJECT_NAME}
-)
+# Note: set_initial_pose.py was removed as initial pose is now set directly in URDF
 
 ament_package()
