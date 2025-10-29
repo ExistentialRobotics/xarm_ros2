@@ -1,6 +1,6 @@
 # xarm_ros2说明
 
-## 1. 简介
+## 1.
 
 &ensp;&ensp;&ensp;&ensp;此代码库包含xArm模型文件以及相关的控制、规划等示例开发包。开发及测试使用的环境如下
 - Ubuntu 20.04 + ROS Foxy
