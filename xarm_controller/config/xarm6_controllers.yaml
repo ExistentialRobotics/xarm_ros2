@@ -1,64 +1,15 @@
 controller_manager:
   ros__parameters:
     update_rate: 50  # Hz
+    
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-
-    position_controller:
-      type: position_controllers/JointGroupPositionController
-
-    velocity_controller:
-      type: velocity_controllers/JointGroupVelocityController
-
-    effort_controller:
-      type: effort_controllers/JointGroupEffortController
 
     traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-    # Original comment: only for fake control (?)
-    gripper_traj_controller:
+    gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-
-    # Original comment: only for fake control (?)
-    bio_gripper_traj_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
-
-position_controller:
-  ros__parameters:
-    joints:
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
-      - joint6
-
-velocity_controller:
-  ros__parameters:
-    joints:
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
-      - joint6
-    interface_name: velocity
-    command_interfaces:
-      - velocity
-    state_interfaces:
-      - position
-      - velocity
-
-effort_controller:
-  ros__parameters:
-    joints:
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
-      - joint6
 
 traj_controller:
   ros__parameters:
@@ -78,38 +29,31 @@ traj_controller:
     constraints:
       goal_time: 0.5
       stopped_velocity_tolerance: 0.0
-      joint1: {trajectory: 1.0, goal: 0.01}
-      joint2: {trajectory: 1.0, goal: 0.01}
-      joint3: {trajectory: 1.0, goal: 0.01}
-      joint4: {trajectory: 1.0, goal: 0.01}
-      joint5: {trajectory: 1.0, goal: 0.01}
-      joint6: {trajectory: 1.0, goal: 0.01}
+      joint1: {trajectory: 1.0, goal: 0.05}
+      joint2: {trajectory: 1.0, goal: 0.05}
+      joint3: {trajectory: 1.0, goal: 0.05}
+      joint4: {trajectory: 1.0, goal: 0.05}
+      joint5: {trajectory: 1.0, goal: 0.05}
+      joint6: {trajectory: 1.0, goal: 0.05}
     interface_name: position
     state_publish_rate: 25.0
     action_monitor_rate: 10.0
     update_rate: 25
 
-# Original comment: only for fake control (?)
-gripper_traj_controller:
+gripper_controller:
   ros__parameters:
     command_interfaces:
       - position
     state_interfaces:
       - position
-      - velocity
     joints:
       - drive_joint
+    constraints:
+      goal_time: 0.5
+      stopped_velocity_tolerance: 0.0
+      drive_joint: {trajectory: 0.5, goal: 0.05}
     interface_name: position
+    state_publish_rate: 25.0
+    action_monitor_rate: 10.0
+    allow_nonzero_velocity_at_trajectory_end: true
 
-# only for fake control
-bio_gripper_traj_controller:
-  ros__parameters:
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
-    joints:
-      # - left_finger_joint
-      - right_finger_joint
-    interface_name: position

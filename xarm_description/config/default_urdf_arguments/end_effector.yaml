@@ -1,5 +1,5 @@
 # end-effector
-gripper: true
+gripper: false
 vacuum_gripper: false
 bio_gripper: false
 realsense_d435i: false

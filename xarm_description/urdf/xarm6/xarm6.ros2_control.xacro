@@ -5,12 +5,16 @@
     ros2_control_plugin:='uf_robot_hardware/UFRobotSystemHardware'
     hw_ns:='xarm' add_gripper:='false' add_bio_gripper:='false'
     robot_ip:='' report_type:='normal' baud_checkset:='true' default_gripper_baud:=2000000
-    joint1_lower_limit:=${-2.0*pi}  joint1_upper_limit:=${2.0*pi}
-    joint2_lower_limit:=${-2.059}  joint2_upper_limit:=${2.0944}
-    joint3_lower_limit:=${-3.927}  joint3_upper_limit:=${0.19198}
-    joint4_lower_limit:=${-2.0*pi}  joint4_upper_limit:=${2.0*pi}
-    joint5_lower_limit:=${-1.69297}  joint5_upper_limit:=${pi}
-    joint6_lower_limit:=${-2.0*pi}  joint6_upper_limit:=${2.0*pi}">
+    joint1_lower_limit:=${-10*pi}  joint1_upper_limit:=${10*pi}
+    joint2_lower_limit:=${-10*pi}  joint2_upper_limit:=${10*pi}
+    joint3_lower_limit:=${-10*pi}  joint3_upper_limit:=${10*pi}
+    joint4_lower_limit:=${-10*pi}  joint4_upper_limit:=${10*pi}
+    joint5_lower_limit:=${-10*pi}  joint5_upper_limit:=${10*pi}
+    joint6_lower_limit:=${-10*pi}  joint6_upper_limit:=${10*pi}">
+    
+    <!-- Define initial joint position -->
+    <xacro:property name="init_joint_pos" value="${[0.0, -0.78, -0.78, 0.0, 1.5708, 0.0]}" />
+    
     <ros2_control name="${prefix}${ros2_control_plugin}" type="system">
       <hardware>
         <plugin>${ros2_control_plugin}</plugin>
@@ -45,11 +49,9 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[0]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>
@@ -62,11 +64,9 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[1]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>
@@ -79,11 +79,9 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[2]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>
@@ -96,11 +94,9 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[3]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>
@@ -113,11 +109,9 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[4]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>
@@ -130,13 +124,26 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <!-- <command_interface name="effort">
-          <param name="min">-3.14</param>
-          <param name="max">3.14</param>
-        </command_interface> -->
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${init_joint_pos[5]}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
+      </joint>
+      <!-- Gripper drive joint -->
+      <joint name="${prefix}drive_joint">
+        <command_interface name="position">
+          <param name="min">0</param>
+          <param name="max">0.85</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-2.0</param>
+          <param name="max">2.0</param>
+        </command_interface>
+        <state_interface name="position">
+          <param name="initial_value">0.85</param>
+        </state_interface>
+        <state_interface name="velocity"/>
       </joint>
     </ros2_control>
   </xacro:macro>

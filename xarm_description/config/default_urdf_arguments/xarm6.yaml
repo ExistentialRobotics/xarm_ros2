@@ -2,18 +2,18 @@
 # hw_ns: 'xarm' # changes at runtime
 # ros2_control_plugin: 'uf_robot_hardware/UFRobotSystemHardware' # changes at runtime
 # ros2_control_params: '' # changes at runtime
-robot_ip: '192.168.1.242'
+robot_ip: ''
 dof: 6
 robot_type: 'xarm'
 report_type: 'normal'
 baud_checkset: true
 default_gripper_baud: 2000000 
-model1300: false
+model_num: 0
 robot_sn: '' 
 # control-related
 limited: false
 effort_control: false 
-velocity_control: true
+velocity_control: false
 # urdf-related
 attach_to: 'xarm_device' #TODO: this currently has to match the robot name in the URDF. Fix in gazebo to change frame id.
 attach_xyz: '0 0 0'

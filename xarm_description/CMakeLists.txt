@@ -41,4 +41,7 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Install Python scripts with executable permissions
+# Note: set_initial_pose.py was removed as initial pose is now set directly in URDF
+
 ament_package()

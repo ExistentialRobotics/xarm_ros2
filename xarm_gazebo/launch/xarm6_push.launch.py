@@ -2,6 +2,7 @@
 
 import os
 import xacro
+import math
 from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import load_python_launch_file_as_module
 from launch import LaunchDescription
@@ -45,7 +46,7 @@ def build_robot_description(this_robot_prefix="", this_robot_namespace="", add_g
                 'hw_ns': this_robot_namespace,
                 'ros2_control_plugin': ros2_control_plugin,
                 'ros2_control_params': ros2_control_params,
-                'kinematics_suffix': 'sim', # uses xarm_description/config/user/xarm6_kinematics_sim.yaml
+                'robot_spec_config_file': PathJoinSubstitution([FindPackageShare('xarm_description'), 'config', 'default_urdf_arguments', 'xarm6.yaml']),
             }
         ),
     }
@@ -94,28 +95,6 @@ def get_per_robot_stack(robot_idx, load_controller):
         robot_state_publisher_node            
     )
 
-    # gazebo spawn entity node
-    # gazebo_spawn_entity_node = Node(
-    #     package="ros_gz_sim",
-    #     executable="create",
-    #     namespace=this_robot_namespace,
-    #     output='screen',
-    #     arguments=[
-    #         '-topic', f'robot_description',
-    #         '-allow_renaming', 'false',
-    #         '-x', str(0.0 + robot_idx * 0.4),
-    #         '-y', '-0.3',
-    #         '-z', '1.021',
-    #         '-Y', '1.571',
-    #         '-timeout', '10000',
-    #     ],
-    #     parameters=[{'use_sim_time': True}],
-    # )
-
-    # nodes_to_launch.append(
-    #     gazebo_spawn_entity_node,
-    # )
-
     spawn_entity_test_node = Node(
         package="keti_gz_utils",
         executable="create_on_table",
@@ -127,10 +106,10 @@ def get_per_robot_stack(robot_idx, load_controller):
             'use_sim_time': True,
             'topic': 'robot_description',
             'allow_renaming': False,
-            'x': 0.0 + robot_idx * 0.4,
-            'y': -0.3,
-            'z': 1.021,
-            'Y': 1.571
+            'x': 0.0,
+            'y': 0.0,
+            'z': 0.0,
+            'Y': 0.0
         }],
     )
 
@@ -142,20 +121,9 @@ def get_per_robot_stack(robot_idx, load_controller):
         # the below becomes something like xarm0_xarm6_traj_controller. 
         # The first "xarm0" is from prefix. 
         # The second needs to match what's in xarm_control/config/*.yaml 
-        # f'{this_robot_prefix}traj_controller',
-        f'{this_robot_prefix}velocity_controller',
-        # f'{this_robot_prefix}effort_controller',
+        f'{this_robot_prefix}traj_controller',
+        f'{this_robot_prefix}gripper_controller',
     ]
-    # TODO: fix gripper loading for controllers
-
-    # if robot_type.perform(context) != 'lite' and add_gripper.perform(context) in ('True', 'true'):
-    #     controllers.append(
-    #         f'{prefix.perform(context)}{robot_type.perform(context)}_gripper_traj_controller'
-    #     )
-    # elif robot_type.perform(context) != 'lite' and add_bio_gripper.perform(context) in ('True', 'true'):
-    #     controllers.append(
-    #         f'{prefix.perform(context)}bio_gripper_traj_controller'
-    #     )
 
     if load_controller:
         load_controllers = [
@@ -185,6 +153,7 @@ def get_per_robot_stack(robot_idx, load_controller):
                 )
             )
         )
+        
     return nodes_to_launch
 
 def generate_launch_description():
@@ -192,13 +161,13 @@ def generate_launch_description():
     camera_robot_description = build_camera_description(camera_namespace=camera_namespace)
     load_controller_config = LaunchConfiguration('load_controller', default=True)
     num_robots_config = LaunchConfiguration('num_robots', default=1)
-    world_sdf_path = os.path.join(get_package_share_directory('main'), 'world', 'world_table.sdf') 
+    world_path = os.path.join(get_package_share_directory('xarm_gazebo'), 'worlds', 'table_world.sdf')
 
     # Gazebo launch
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         launch_arguments={
-            'gz_args': f' -r {world_sdf_path}',  
+            'gz_args': f' -r {world_path}',
         }.items(),
     )
 
@@ -214,9 +183,11 @@ def generate_launch_description():
             [camera_namespace, '/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo'],
             [camera_namespace, '/camera_ired1@sensor_msgs/msg/Image@ignition.msgs.Image'],
             [camera_namespace, '/camera_ired2@sensor_msgs/msg/Image@ignition.msgs.Image'],
-            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-            '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-            '/model/xarm_device/pose@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
+            '/clock@rosgraph_msgs/msg/Clock@ignition.msgs.Clock',
+            '/model/realsense2_camera/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            '/model/xarm_device/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            '/model/block/pose@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
+            # Note: goal and table_box poses are handled by env_publisher.py for static reference
         ]
     )
 
@@ -228,13 +199,20 @@ def generate_launch_description():
                 f"/model/{source}/pose",
                 "/tf"
             ]
-        ) for source in ["realsense2_camera", "xarm_device"]
+        ) for source in ["realsense2_camera", "xarm_device", "block"]
+        # Note: goal and table_box relay handled by env_publisher.py for static reference poses
     ]
+
+    # Delay parameter_bridge to ensure Gazebo models are fully loaded
+    delayed_parameter_bridge = TimerAction(
+        period=3.0,  # Delay 3 seconds to ensure Gazebo models are loaded
+        actions=[parameters_bridge] + relay_nodes
+    )
 
     nodes_to_launch = [
         gazebo_launch,
-        parameters_bridge,
-    ] + relay_nodes
+        delayed_parameter_bridge,
+    ]
 
     # Node for launching camera robot state publisher
     robot_state_publisher_node_camera = Node(
@@ -274,6 +252,21 @@ def generate_launch_description():
 
     nodes_to_launch.append(delayed_spawn)
 
+    # Node for publishing environment pose
+    env_pose_publisher = Node(
+        package='xarm_gazebo',
+        executable='env_publisher.py',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
+    delayed_pose_publisher = TimerAction(
+        period=5.0,  # Delay 5 seconds to ensure Gazebo is fully loaded
+        actions=[env_pose_publisher]
+    )
+
+    nodes_to_launch.append(delayed_pose_publisher)
+
     def _launch_all_robots(context):
         return sum(
             [
@@ -284,4 +277,8 @@ def generate_launch_description():
         )
 
     launch_all_robots = OpaqueFunction(function=_launch_all_robots)
-    return LaunchDescription(nodes_to_launch + [launch_all_robots])
+    return LaunchDescription([
+        DeclareLaunchArgument('camera_namespace', default_value='camera_01', description='Camera namespace'),
+        DeclareLaunchArgument('load_controller', default_value='true', description='Whether to load controllers'),
+        DeclareLaunchArgument('num_robots', default_value='1', description='Number of robots to spawn'),
+    ] + nodes_to_launch + [launch_all_robots])
