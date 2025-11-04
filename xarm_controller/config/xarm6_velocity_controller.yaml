@@ -20,9 +20,9 @@ xarm6_velocity_controller:
       - xarm6_joint5
       - xarm6_joint6
     # Velocity limits (rad/s)
-    max_velocity: 3.14
-    min_velocity: -3.14
-    # Controller gains
+    max_velocity: 0.2 #3.14
+    min_velocity: -0.2 #-3.14
+    # Controller gains （Not used in velocity controller）
     kp: 1.0
     kd: 0.1
     # Safety parameters
