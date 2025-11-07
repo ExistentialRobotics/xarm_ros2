@@ -103,7 +103,8 @@
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.162 0.086 0.068</size>
+              <!-- <size>0.162 0.086 0.068</size> -->
+              <size>0.078 0.078 0.078</size> # TODO
             </box>
           </geometry>
           <surface>
@@ -138,7 +139,8 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.162 0.086 0.068</size>
+              <!-- <size>0.162 0.086 0.068</size> -->
+              <size>0.078 0.078 0.078</size> # TODO
             </box>
           </geometry>
           <material>
@@ -196,7 +198,8 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.162 0.086 0.0005</size>
+              <!-- <size>0.162 0.086 0.0005</size> -->
+              <size>0.078 0.078 0.0005</size> # TODO
             </box>
           </geometry>
           <material>
