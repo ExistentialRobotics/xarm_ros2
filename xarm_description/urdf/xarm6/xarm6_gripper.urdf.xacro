@@ -7,8 +7,10 @@
     joint4_lower_limit:=${-10*pi}  joint4_upper_limit:=${10*pi}
     joint5_lower_limit:=${-10*pi}  joint5_upper_limit:=${10*pi}
     joint6_lower_limit:=${-10*pi}  joint6_upper_limit:=${10*pi}
+    driver_joint:='0.85'
     model_num:=0
-    inertial_params_filename:='' kinematics_params_filename:='' "
+    inertial_params_filename:='' kinematics_params_filename:='' lock_gripper:='true'
+    "
     >
 
     <!-- define property -->
@@ -314,14 +316,24 @@
     </collision>
   </link>
   
-  <joint name="${prefix}drive_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0.035 0.059098"/>
-    <parent link="${prefix}xarm_gripper_base_link"/>
-    <child link="${prefix}left_outer_knuckle"/>
-    <axis xyz="1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}drive_joint" type="fixed">
+      <origin rpy="${driver_joint} 0 0" xyz="0 0.035 0.059098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child  link="${prefix}left_outer_knuckle"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}drive_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 0.035 0.059098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child  link="${prefix}left_outer_knuckle"/>
+      <axis xyz="1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <dynamics damping="1.0" friction="1.0"/>
+      <initial_position>0.0</initial_position>
+    </joint>
+  </xacro:unless>
   
   <link name="${prefix}left_finger">
     <inertial>
@@ -344,16 +356,25 @@
     </collision>
   </link>
   
-  <joint name="${prefix}left_finger_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0.035465 0.042039"/>
-    <parent link="${prefix}left_outer_knuckle"/>
-    <child link="${prefix}left_finger"/>
-    <axis xyz="-1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
-  
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}left_finger_joint" type="fixed">
+      <origin rpy="-${driver_joint} 0 0" xyz="0 0.035465 0.042039"/>
+      <parent link="${prefix}left_outer_knuckle"/>
+      <child link="${prefix}left_finger"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}left_finger_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 0.035465 0.042039"/>
+      <parent link="${prefix}left_outer_knuckle"/>
+      <child link="${prefix}left_finger"/>
+      <axis xyz="-1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+  </xacro:unless>
+    
   <link name="${prefix}left_inner_knuckle">
     <inertial>
       <origin rpy="0 0 0" xyz="1.86600784687907E-06 0.0220467847633621 0.0261334672830885"/>
@@ -375,16 +396,25 @@
     </collision>
   </link>
   
-  <joint name="${prefix}left_inner_knuckle_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0.02 0.074098"/>
-    <parent link="${prefix}xarm_gripper_base_link"/>
-    <child link="${prefix}left_inner_knuckle"/>
-    <axis xyz="1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
-  
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}left_inner_knuckle_joint" type="fixed">
+      <origin rpy="${driver_joint} 0 0" xyz="0 0.02 0.074098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}left_inner_knuckle"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}left_inner_knuckle_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 0.02 0.074098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}left_inner_knuckle"/>
+      <axis xyz="1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+  </xacro:unless>
+    
   <link name="${prefix}right_outer_knuckle">
     <inertial>
       <origin rpy="0 0 0" xyz="-3.1669E-14 -0.021559 0.015181"/>
@@ -406,16 +436,25 @@
     </collision>
   </link>
   
-  <joint name="${prefix}right_outer_knuckle_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.035 0.059098"/>
-    <parent link="${prefix}xarm_gripper_base_link"/>
-    <child link="${prefix}right_outer_knuckle"/>
-    <axis xyz="-1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
-  
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}right_outer_knuckle_joint" type="fixed">
+      <origin rpy="-${driver_joint} 0 0" xyz="0 -0.035 0.059098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}right_outer_knuckle"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}right_outer_knuckle_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 -0.035 0.059098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}right_outer_knuckle"/>
+      <axis xyz="-1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+  </xacro:unless>
+
   <link name="${prefix}right_finger">
     <inertial>
       <origin rpy="0 0 0" xyz="2.5618E-14 0.016413 0.029258"/>
@@ -436,16 +475,25 @@
       </geometry>
     </collision>
   </link>
-  
-  <joint name="${prefix}right_finger_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.035465 0.042039"/>
-    <parent link="${prefix}right_outer_knuckle"/>
-    <child link="${prefix}right_finger"/>
-    <axis xyz="1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
+
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}right_finger_joint" type="fixed">
+      <origin rpy="${driver_joint} 0 0" xyz="0 -0.035465 0.042039"/>
+      <parent link="${prefix}right_outer_knuckle"/>
+      <child link="${prefix}right_finger"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}right_finger_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 -0.035465 0.042039"/>
+      <parent link="${prefix}right_outer_knuckle"/>
+      <child link="${prefix}right_finger"/>
+      <axis xyz="1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+  </xacro:unless>
   
   <link name="${prefix}right_inner_knuckle">
     <inertial>
@@ -467,23 +515,32 @@
       </geometry>
     </collision>
   </link>
-  
-  <joint name="${prefix}right_inner_knuckle_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.02 0.074098"/>
-    <parent link="${prefix}xarm_gripper_base_link"/>
-    <child link="${prefix}right_inner_knuckle"/>
-    <axis xyz="-1 0 0"/>
-    <limit effort="50" lower="0" upper="0.85" velocity="2"/>
-    <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
-    <dynamics damping="1.0" friction="1.0"/>
-  </joint>
 
-  <!-- Gripper ee_tip - replaces the stick ee_tip when gripper is attached -->
+  <xacro:if value="${lock_gripper}">
+    <joint name="${prefix}right_inner_knuckle_joint" type="fixed">
+      <origin rpy="-${driver_joint} 0 0" xyz="0 -0.02 0.074098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}right_inner_knuckle"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="${lock_gripper}">
+    <joint name="${prefix}right_inner_knuckle_joint" type="revolute">
+      <origin rpy="0 0 0" xyz="0 -0.02 0.074098"/>
+      <parent link="${prefix}xarm_gripper_base_link"/>
+      <child link="${prefix}right_inner_knuckle"/>
+      <axis xyz="-1 0 0"/>
+      <limit effort="50" lower="0" upper="0.85" velocity="2"/>
+      <mimic joint="${prefix}drive_joint" multiplier="1" offset="0"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+  </xacro:unless>
+
+  <!-- Gripper ee_tip -->
   <link name="${prefix}gripper_ee_tip">
   </link>
   <joint name="${prefix}gripper_ee_tip_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.055"/>
-    <parent link="${prefix}right_finger"/>
+    <origin rpy="0 0 0" xyz="0 0 0.17"/>
+    <parent link="${prefix}xarm_gripper_base_link"/>
     <child link="${prefix}gripper_ee_tip"/>
     <axis xyz="0 0 0"/>
   </joint>

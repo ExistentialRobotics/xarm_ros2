@@ -26,14 +26,14 @@
 
     <!-- Replace prefab table with a simple 10x10x1 m box table -->
     <model name="table_box">
-      <!-- Place so the base sits on ground: z = height/2 = 0.054 -->
-      <pose>0.5 0.0 0.054 0 0 0</pose>
+      <!-- Place so the base sits on ground: z = height/2 -->
+      <pose>0.5 0.0 0.0025 0 0 0</pose> # TODO: real test
       <static>true</static>
       <link name="table_link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.8 1.0 0.108</size>
+              <size>0.8 1.0 0.005</size> # TODO: real test
             </box>
           </geometry>
           <surface>
@@ -68,7 +68,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.8 1.0 0.108</size>
+              <size>0.8 1.0 0.005</size> # TODO: real test
             </box>
           </geometry>
           <material>
@@ -97,14 +97,15 @@
     
     <!-- Bare minimal block with state-publisher plugin -->
     <model name="block">
-      <pose>0.400 0.000 0.142 0 0 0</pose>
+      <pose>0.400 0.000 0.0705 0 0 0</pose>
+      <!-- <pose>0.400 0.000 0.0815 0 0 0</pose> # TODO: real test -->
       <static>false</static>
       <link name="link">
         <collision name="collision">
           <geometry>
             <box>
-              <!-- <size>0.162 0.086 0.068</size> -->
-              <size>0.078 0.078 0.078</size> # TODO
+              <size>0.162 0.086 0.068</size>
+              <!-- <size>0.078 0.078 0.078</size> # TODO: real test -->
             </box>
           </geometry>
           <surface>
@@ -139,8 +140,8 @@
         <visual name="visual">
           <geometry>
             <box>
-              <!-- <size>0.162 0.086 0.068</size> -->
-              <size>0.078 0.078 0.078</size> # TODO
+              <size>0.162 0.086 0.068</size>
+              <!-- <size>0.078 0.078 0.078</size> # TODO: real test -->
             </box>
           </geometry>
           <material>
@@ -173,24 +174,24 @@
         <publish_model_pose>true</publish_model_pose>
         <publish_nested_model_pose>true</publish_nested_model_pose>
         <use_pose_vector_msg>true</use_pose_vector_msg>
-        <update_frequency>10</update_frequency>
+        <update_frequency>100</update_frequency>
         <static_publisher>false</static_publisher>
-        <static_update_frequency>10</static_update_frequency>
+        <static_update_frequency>100</static_update_frequency>
       </plugin>
     </model>
 
     <!-- Goal area for manipulation target -->
     <model name="goal">
-      <!-- <pose rotation_format="euler_rpy">0.65 0.0 0.108 0 0 0</pose>      # goal_pose_c_00
-      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.523</pose>   # goal_pose_l_30
-      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -0.523</pose> # goal_pose_r_30
-      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.785</pose>   # goal_pose_l_45
-      <pose rotation_format="euler_rpy">0.7 -0.2 0.108 0 0 -0.785</pose> # goal_pose_r_45
-      <pose rotation_format="euler_rpy">0.65 0.2 0.108 0 0 1.047</pose>   # goal_pose_l_60
-      <pose rotation_format="euler_rpy">0.65 -0.2 0.108 0 0 -1.047</pose> # goal_pose_r_60
-      <pose rotation_format="euler_rpy">0.65 0.2 0.108 0 0 1.570</pose>   # goal_pose_l_90 -->
+      <!-- <pose rotation_format="euler_rpy">0.65 0.0 0.005 0 0 0</pose>      # goal_pose_c_00
+      <pose rotation_format="euler_rpy">0.7 0.2 0.005 0 0 0.523</pose>   # goal_pose_l_30
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.005 0 0 -0.523</pose> # goal_pose_r_30
+      <pose rotation_format="euler_rpy">0.7 0.2 0.005 0 0 0.785</pose>   # goal_pose_l_45
+      <pose rotation_format="euler_rpy">0.7 -0.2 0.005 0 0 -0.785</pose> # goal_pose_r_45
+      <pose rotation_format="euler_rpy">0.65 0.2 0.005 0 0 1.047</pose>   # goal_pose_l_60
+      <pose rotation_format="euler_rpy">0.65 -0.2 0.005 0 0 -1.047</pose> # goal_pose_r_60
+      <pose rotation_format="euler_rpy">0.65 0.2 0.005 0 0 1.570</pose>   # goal_pose_l_90 -->
 
-      <pose rotation_format="euler_rpy">0.7 0.2 0.108 0 0 0.523</pose>   # goal_pose_l_30
+      <pose rotation_format="euler_rpy">0.7 0.2 0.005 0 0 0.523</pose> # TODO: real test
       <static>true</static>
       
       <link name="link">
@@ -198,8 +199,8 @@
         <visual name="visual">
           <geometry>
             <box>
-              <!-- <size>0.162 0.086 0.0005</size> -->
-              <size>0.078 0.078 0.0005</size> # TODO
+              <size>0.162 0.086 0.001</size>
+              <!-- <size>0.078 0.078 0.001</size> # TODO: real test -->
             </box>
           </geometry>
           <material>

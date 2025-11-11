@@ -535,15 +535,15 @@
     </joint>
   </xacro:unless>
 
-  <!-- Gripper ee_tip - replaces the stick ee_tip when gripper is attached -->
-  <!-- <link name="${prefix}gripper_ee_tip">
+  <!-- Gripper ee_tip -->
+  <link name="${prefix}gripper_ee_tip">
   </link>
   <joint name="${prefix}gripper_ee_tip_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.055"/>
-    <parent link="${prefix}right_finger"/>
+    <origin rpy="0 0 0" xyz="0 0 0.17"/>
+    <parent link="${prefix}xarm_gripper_base_link"/>
     <child link="${prefix}gripper_ee_tip"/>
     <axis xyz="0 0 0"/>
-  </joint> -->
+  </joint>
   
   </xacro:macro>
 </robot>
