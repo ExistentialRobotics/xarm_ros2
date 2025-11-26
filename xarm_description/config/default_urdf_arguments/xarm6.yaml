@@ -5,7 +5,7 @@
 robot_ip: '192.168.1.242'
 dof: 6
 robot_type: 'xarm'
-report_type: 'normal'
+report_type: 'dev'
 baud_checkset: true
 default_gripper_baud: 2000000 
 model_num: 0
