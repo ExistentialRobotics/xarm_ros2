@@ -223,7 +223,15 @@
       </xacro:if>
     </xacro:if>
     <xacro:unless value="${add_realsense_d435i}">
-      <link name="${prefix}link_eef"/>
+      <link name="${prefix}link_eef">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <mass value="0.001" />
+          <inertia
+            ixx="0.000001" ixy="0.0" ixz="0.0"
+            iyy="0.000001" iyz="0.0" izz="0.000001" />
+        </inertial>
+      </link>
     </xacro:unless>
     <joint name="${prefix}joint_eef" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0" />

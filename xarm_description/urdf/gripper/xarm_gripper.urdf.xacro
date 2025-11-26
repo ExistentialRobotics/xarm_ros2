@@ -185,7 +185,15 @@
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
 
-    <link name="${prefix}link_tcp" />
+    <link name="${prefix}link_tcp">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="0.001" />
+        <inertia
+          ixx="0.000001" ixy="0.0" ixz="0.0"
+          iyy="0.000001" iyz="0.0" izz="0.000001" />
+      </inertial>
+    </link>
 
     <joint name="${prefix}joint_tcp" type="fixed">
       <origin xyz="0 0 0.172" rpy="0 0 0" />
