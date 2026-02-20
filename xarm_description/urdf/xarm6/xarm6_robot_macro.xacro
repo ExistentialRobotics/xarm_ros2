@@ -22,7 +22,7 @@
     <xacro:if value="${is_ros2}">
       <xacro:include filename="$(find xarm_description)/urdf/xarm6/xarm6.ros2_control.xacro" />
     </xacro:if>
-    <xacro:include filename="$(find xarm_description)/urdf/xarm6/xarm6.urdf.xacro" />
+    <xacro:include filename="$(find xarm_description)/urdf/xarm6/xarm6_stick.urdf.xacro" />
     <xacro:include filename="$(find xarm_description)/urdf/xarm6/xarm6.transmission.xacro" />
     <xacro:include filename="$(find xarm_description)/urdf/xarm6/xarm6.gazebo.xacro" />
 

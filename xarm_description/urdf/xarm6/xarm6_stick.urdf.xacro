@@ -267,24 +267,24 @@
 
   <link name="${prefix}ee_stick">
     <inertial>
-      <origin xyz="0 0 0.16" rpy="0 0 0"/>
+      <origin xyz="0 0 0.089" rpy="0 0 0"/>
       <mass value="0.01"/>
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.00001"/>
     </inertial>
     <visual>
       <geometry>
-        <cylinder length="0.35" radius="0.01"/>
+        <cylinder length="0.178" radius="0.005"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.16"/>
+      <origin rpy="0 0 0" xyz="0 0 0.089"/>
       <material name="Purple">
         <color rgba="0.5 0 0.5 1"/>
       </material>
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.35" radius="0.01"/>
+        <cylinder length="0.178" radius="0.005"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.16"/>
+      <origin rpy="0 0 0" xyz="0 0 0.089"/>
     </collision>
   </link>
   <joint name="${prefix}joint_ee_stick" type="fixed">
@@ -296,7 +296,7 @@
   <link name="${prefix}ee_tip">
   </link>
   <joint name="${prefix}joint_ee_tip" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.335"/>
+    <origin rpy="0 0 0" xyz="0 0 0.178"/>
     <parent link="${prefix}ee_stick"/>
     <child link="${prefix}ee_tip"/>
     <axis xyz="0 0 0"/>
