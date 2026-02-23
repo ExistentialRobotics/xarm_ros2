@@ -266,23 +266,22 @@
     </joint>
 
 
-  <!-- sim set up -->
   <link name="${prefix}ee_stick">
     <visual>
       <geometry>
-        <cylinder length="0.33" radius="0.01"/>
+        <cylinder length="0.20" radius="0.01"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.18"/>
+      <origin rpy="0 0 0" xyz="0 0 0.115"/>
       <material name="Purple"/>
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.33" radius="0.01"/>
+        <cylinder length="0.20" radius="0.01"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.18"/>
+      <origin rpy="0 0 0" xyz="0 0 0.115"/>
     </collision>
   </link>
-  <joint name="${prefix}joint_ee_stick" type="fixed">
+  <joint name="${prefix}ee_stick_link6" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 -0.015"/>
     <parent link="link6"/>
     <child link="${prefix}ee_stick"/>
@@ -290,12 +289,12 @@
   </joint>
   <link name="${prefix}ee_tip">
   </link>
-  <joint name="${prefix}joint_ee_tip" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.337"/>
+  <joint name="${prefix}ee_tip_stick" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.215"/>
     <parent link="${prefix}ee_stick"/>
     <child link="${prefix}ee_tip"/>
     <axis xyz="0 0 0"/>
   </joint>
-  
+
   </xacro:macro>
 </robot>
