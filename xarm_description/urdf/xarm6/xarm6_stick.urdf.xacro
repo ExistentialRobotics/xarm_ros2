@@ -266,35 +266,282 @@
     </joint>
 
 
-  <link name="${prefix}ee_stick">
-    <visual>
-      <geometry>
-        <cylinder length="0.20" radius="0.01"/>
-      </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.115"/>
-      <material name="Purple"/>
-    </visual>
-    <collision>
-      <geometry>
-        <cylinder length="0.20" radius="0.01"/>
-      </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.115"/>
-    </collision>
-  </link>
-  <joint name="${prefix}ee_stick_link6" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 -0.015"/>
-    <parent link="link6"/>
-    <child link="${prefix}ee_stick"/>
-    <axis xyz="0 0 0"/>
-  </joint>
-  <link name="${prefix}ee_tip">
-  </link>
-  <joint name="${prefix}ee_tip_stick" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.215"/>
-    <parent link="${prefix}ee_stick"/>
-    <child link="${prefix}ee_tip"/>
-    <axis xyz="0 0 0"/>
-  </joint>
+	<link name="xarm6_ee_stick">
+		<visual>
+		<geometry>
+			<cylinder length="0.173" radius="0.005"/>
+		</geometry>
+		<origin rpy="0 0 0" xyz="0 0 0.0865"/>
+		<material name="Purple"/>
+		</visual>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.0" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.005" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.01" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.015" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.020" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.025" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.03" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.035" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.04" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.045" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.05" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.055" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.06" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.065" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.07" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.075" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.08" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.09" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.095" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.1" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.105" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.11" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.115" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.120" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.125" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.13" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.135" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.14" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.145" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.15" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.155" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.16" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.165" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.17" rpy="0 0 0"></origin>
+		</collision>
+
+		<collision>
+			<geometry>
+				<sphere radius="0.005"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.175" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<joint name="xarm6_ee_stick_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 -0.015"/>
+		<parent link="${prefix}link6"/>
+		<child link="xarm6_ee_stick"/>
+		<axis xyz="0 0 0"/>
+	</joint>
+	<link name="xarm6_ee_tip">
+		<collision>
+			<geometry>
+				<sphere radius="0.01"></sphere>
+			</geometry>
+			<origin xyz="0.0 0.0 0.0" rpy="0 0 0"></origin>
+		</collision>
+	</link>
+	<joint name="xarm6_ee_tip_joint" type="fixed">
+		<origin rpy="0 0 0" xyz="0 0 0.173"/>
+		<parent link="xarm6_ee_stick"/>
+		<child link="xarm6_ee_tip"/>
+		<axis xyz="0 0 0"/>
+	</joint>
+
+
 
   </xacro:macro>
 </robot>

@@ -57,8 +57,8 @@ velocity_controller:
       - joint4
       - joint5
       - joint6
-    max_velocity: 0.2   # 3.14
-    min_velocity: -0.2  #-3.14
+    max_velocity: 0.4   # 3.14
+    min_velocity: -0.4  #-3.14
     kp: 1.0
     kd: 0.1
     timeout: 0.5
