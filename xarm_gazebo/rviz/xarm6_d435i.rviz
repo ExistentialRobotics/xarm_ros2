@@ -1,0 +1,369 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /RobotModel1
+        - /PointCloud2_camera1
+      Splitter Ratio: 0.5
+    Tree Height: 677
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Expanded: ~
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: robot_description
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        wrist_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_left_ir_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_left_ir_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_right_ir_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_camera_right_ir_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        xarm6_ee_stick:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_ee_tip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm6_link_eef:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xarm_device:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        wrist_camera_link:
+          Value: true
+        xarm6_camera_color_frame:
+          Value: true
+        xarm6_camera_color_optical_frame:
+          Value: true
+        xarm6_camera_depth_frame:
+          Value: true
+        xarm6_camera_depth_optical_frame:
+          Value: true
+        xarm6_camera_left_ir_frame:
+          Value: true
+        xarm6_camera_left_ir_optical_frame:
+          Value: true
+        xarm6_camera_link:
+          Value: true
+        xarm6_camera_right_ir_frame:
+          Value: true
+        xarm6_camera_right_ir_optical_frame:
+          Value: true
+        xarm6_ee_stick:
+          Value: true
+        xarm6_ee_tip:
+          Value: true
+        xarm6_link1:
+          Value: true
+        xarm6_link2:
+          Value: true
+        xarm6_link3:
+          Value: true
+        xarm6_link4:
+          Value: true
+        xarm6_link5:
+          Value: true
+        xarm6_link6:
+          Value: true
+        xarm6_link_base:
+          Value: true
+        xarm6_link_eef:
+          Value: true
+        xarm_device:
+          Value: true
+      Marker Scale: 0.30000001192092896
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: false
+      Tree:
+        xarm_device:
+          xarm6_link_base:
+            xarm6_link1:
+              xarm6_link2:
+                xarm6_link3:
+                  xarm6_link4:
+                    xarm6_link5:
+                      xarm6_link6:
+                        xarm6_ee_stick:
+                          xarm6_ee_tip:
+                            {}
+                        xarm6_link_eef:
+                          wrist_camera_link:
+                            {}
+                          xarm6_camera_link:
+                            xarm6_camera_color_frame:
+                              xarm6_camera_color_optical_frame:
+                                {}
+                            xarm6_camera_depth_frame:
+                              xarm6_camera_depth_optical_frame:
+                                {}
+                            xarm6_camera_left_ir_frame:
+                              xarm6_camera_left_ir_optical_frame:
+                                {}
+                            xarm6_camera_right_ir_frame:
+                              xarm6_camera_right_ir_optical_frame:
+                                {}
+      Update Interval: 0
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2_camera
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /xarm6_camera/depth/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image_color
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /xarm6_camera/color
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 5
+      Median window: 5
+      Min Value: 0
+      Name: Image_depth
+      Normalize Range: false
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /xarm6_camera/depth
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: xarm_device
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 3.0024662017822266
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0.30000001192092896
+        Y: 0
+        Z: 0.30000001192092896
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.3850000202655792
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 5.179999828338623
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 900
+  Hide Left Dock: false
+  Hide Right Dock: false
+  Image_color:
+    collapsed: false
+  Image_depth:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000002000000000000019b0000032efc0200000005fb000000160049006d006100670065005f0063006f006c006f0072010000003b000000ee0000002800fffffffb000000160049006d006100670065005f00640065007000740068010000012f000000ee0000002800fffffffb0000001200530065006c0065006300740069006f006e00000001fe0000005f0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073000000023d0000006f0000005c00fffffffb0000000a00560069006500770073010000022300000146000000a000ffffff00000001000001560000032efc0200000001fb000000100044006900730070006c006100790073010000003b0000032e000000c700ffffff000003430000032e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1600
+  X: 100
+  Y: 100

@@ -218,8 +218,14 @@
       <xacro:include filename="$(find xarm_description)/urdf/camera/realsense_d435i.urdf.xacro" />
       <xacro:d435i_urdf prefix="${prefix}" add_d435i_links="${add_d435i_links}" />
       <xacro:if value="${add_d435i_links}">
-        <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gazebo.xacro" />    
-        <xacro:realsense_gazebo prefix="${prefix}" />
+        <xacro:if value="${ros2_control_plugin == 'ign_ros2_control/IgnitionSystem'}">
+          <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gz.xacro" />
+          <xacro:realsense_gz prefix="${prefix}" />
+        </xacro:if>
+        <xacro:unless value="${ros2_control_plugin == 'ign_ros2_control/IgnitionSystem'}">
+          <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gazebo.xacro" />
+          <xacro:realsense_gazebo prefix="${prefix}" />
+        </xacro:unless>
       </xacro:if>
     </xacro:if>
     <xacro:unless value="${add_realsense_d435i}">

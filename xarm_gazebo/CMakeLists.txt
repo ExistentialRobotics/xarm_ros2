@@ -70,6 +70,7 @@ install(
 install(DIRECTORY
   worlds
   launch
+  rviz
   DESTINATION share/${PROJECT_NAME}/
 )
 
