@@ -77,7 +77,7 @@
     <joint name="wrist_camera_link_joint" type="fixed">
       <parent link="${prefix}link_eef" />
       <child link="wrist_camera_link" />
-      <origin xyz="0.06746 -0.0175 0.0237" rpy="${M_PI} ${-M_PI/2} 0" />
+      <origin xyz="0.06746 -0.0575 0.0237" rpy="${M_PI} ${-M_PI/2} 0" />
     </joint>
 
   </xacro:macro>
