@@ -1,33 +1,53 @@
 <?xml version="1.0" ?>
-<sdf version="1.4">
+<sdf version="1.9">
   <world name="default">
-<include>
-  <uri>
-    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane
-  </uri>
-</include>
 
-<include>
-  <uri>
-    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun
-  </uri>
-</include>  
+    <!-- gz-sim system plugins. Without these the sim has no physics, no
+         scene updates, no sensor rendering. ogre2 is required for the
+         depth_camera sensor to return real data (ogre1 silently returns
+         zeros). -->
+    <plugin filename="ignition-gazebo-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="ignition-gazebo-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
 
-<include>
-  <uri>
-    https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table
-  </uri>
-      <pose>0.0 -0.84 0 0 0 0</pose>
-
-</include>  
-
-    <physics type="ode">
+    <physics name="1ms" type="ode">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>1000</real_time_update_rate>
-      <!-- (2022-12-20) humble: change gravity from [0 0 -9.81] to [0 0 0] -->
-      <gravity>0 0 0</gravity>
     </physics>
+
+    <!-- (2022-12-20) humble: gravity disabled for static-arm tests -->
+    <gravity>0 0 0</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
+    </include>
+
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
+    </include>
+
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri>
+      <pose>0.0 -0.84 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/SquareShelf</uri>
+      <name>Shelf</name>
+      <pose>-0.5 -0.84 1.01 0 0 1.57</pose> 
+    </include>
 
   </world>
 </sdf>

@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="xarm_device">
   <xacro:macro name="xarm_device" params="
     prefix:=''
-    hw_ns:='xarm'
+    hw_ns:=''
     limited:=false
     effort_control:=false 
     velocity_control:=false
@@ -36,7 +36,7 @@
     report_type:='normal'
     baud_checkset:=true
     default_gripper_baud:=2000000 
-    model1300:=false
+    model_num:=0
     robot_sn:='' 
     mesh_suffix:='stl' 
     kinematics_suffix:=''
@@ -63,20 +63,23 @@
 
     <!-- include common.link.xacro -->
     <xacro:include filename="$(find xarm_description)/urdf/common/common.link.xacro" />
-    <xacro:parse_link_inertial_filename dof="${dof}" robot_type="${robot_type}" robot_sn="${robot_sn}" model1300="${model1300}" />
+    <xacro:parse_link_inertial_filename dof="${dof}" robot_type="${robot_type}" robot_sn="${robot_sn}" model_num="${model_num}" />
     <xacro:property name="inertial_params_filename" value="${scope_parent_inertial_params_filename}"/>
-    <xacro:property name="new_model1300" value="${scope_parent_model1300}"/>
+    <xacro:property name="new_model_num" value="${scope_parent_model_num}"/>
 
     <!-- add one world link if no 'attach_to' specified  -->
-    <xacro:if value="${attach_to == 'world' and create_attach_link}">
-      <link name="world" />
-    </xacro:if>
+    <xacro:if value="${attach_to != ''}"> 
+      <xacro:if value="${create_attach_link}">
+        <link name="${attach_to}" />
+      </xacro:if>
 
-    <joint name="${prefix}world_joint" type="fixed">
-      <parent link="${attach_to}" />
-      <child link="${prefix}link_base" />
-      <origin xyz="${attach_xyz}" rpy="${attach_rpy}" />
-    </joint>
+      <joint name="${prefix}world_joint" type="fixed">
+        <parent link="${attach_to}" />
+        <child link="${prefix}link_base" />
+        <origin xyz="${attach_xyz}" rpy="${attach_rpy}" />
+      </joint>
+
+    </xacro:if>
 
     <xacro:if value="${effort_control}"> 
       <xacro:property name="hard_interface" value="EffortJointInterface" />
@@ -134,7 +137,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}"
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -166,7 +169,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}"
-          model1300="${new_model1300}"
+          model_num="${model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -185,7 +188,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}" 
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -202,7 +205,7 @@
           report_type="${report_type}"
           baud_checkset="${baud_checkset}"
           default_gripper_baud="${default_gripper_baud}" 
-          model1300="${new_model1300}"
+          model_num="${new_model_num}"
           inertial_params_filename="${inertial_params_filename}"
           kinematics_params_filename="${kinematics_params_filename}"
           hard_interface="${hard_interface}" />
@@ -215,12 +218,26 @@
       <xacro:include filename="$(find xarm_description)/urdf/camera/realsense_d435i.urdf.xacro" />
       <xacro:d435i_urdf prefix="${prefix}" add_d435i_links="${add_d435i_links}" />
       <xacro:if value="${add_d435i_links}">
-        <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gazebo.xacro" />    
-        <xacro:realsense_gazebo prefix="${prefix}" />
+        <xacro:if value="${ros2_control_plugin == 'ign_ros2_control/IgnitionSystem'}">
+          <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gz.xacro" />
+          <xacro:realsense_gz prefix="${prefix}" />
+        </xacro:if>
+        <xacro:unless value="${ros2_control_plugin == 'ign_ros2_control/IgnitionSystem'}">
+          <xacro:include filename="$(find xarm_description)/urdf/camera/realsense.gazebo.xacro" />
+          <xacro:realsense_gazebo prefix="${prefix}" />
+        </xacro:unless>
       </xacro:if>
     </xacro:if>
     <xacro:unless value="${add_realsense_d435i}">
-      <link name="${prefix}link_eef"/>
+      <link name="${prefix}link_eef">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <mass value="0.001" />
+          <inertia
+            ixx="0.000001" ixy="0.0" ixz="0.0"
+            iyy="0.000001" iyz="0.0" izz="0.000001" />
+        </inertial>
+      </link>
     </xacro:unless>
     <joint name="${prefix}joint_eef" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -303,6 +320,20 @@
     </xacro:if>
 
     <xacro:device_macro_end />
+    <gazebo>
+        <plugin filename="ignition-gazebo-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+            <publish_link_pose>false</publish_link_pose>
+            <publish_visual_pose>false</publish_visual_pose>
+            <publish_collision_pose>false</publish_collision_pose>
+            <publish_sensor_pose>false</publish_sensor_pose>
+            <publish_model_pose>true</publish_model_pose>
+            <publish_nested_model_pose>true</publish_nested_model_pose>
+            <use_pose_vector_msg>true</use_pose_vector_msg>
+            <update_frequency>10</update_frequency>
+            <static_publisher>false</static_publisher>
+            <static_update_frequency>10</static_update_frequency>
+        </plugin>
+    </gazebo>
 
   </xacro:macro>
 </robot>

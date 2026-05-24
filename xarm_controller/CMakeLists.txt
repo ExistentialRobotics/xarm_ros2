@@ -100,7 +100,14 @@ install(
 install(DIRECTORY
   launch
   config
+  scripts
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install Python scripts with executable permissions
+install(PROGRAMS
+  scripts/test_velocity_control.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_export_include_directories(include)

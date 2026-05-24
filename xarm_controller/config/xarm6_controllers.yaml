@@ -1,17 +1,17 @@
 controller_manager:
   ros__parameters:
-    update_rate: 50  # Hz
+    update_rate: 150  # Hz
+    
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-    # Original comment: only for fake control (?)
-    gripper_traj_controller:
-      type: joint_trajectory_controller/JointTrajectoryController
 
-    # Original comment: only for fake control (?)
-    bio_gripper_traj_controller:
+    velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 traj_controller:
@@ -32,38 +32,52 @@ traj_controller:
     constraints:
       goal_time: 0.5
       stopped_velocity_tolerance: 0.0
-      joint1: {trajectory: 1.0, goal: 0.01}
-      joint2: {trajectory: 1.0, goal: 0.01}
-      joint3: {trajectory: 1.0, goal: 0.01}
-      joint4: {trajectory: 1.0, goal: 0.01}
-      joint5: {trajectory: 1.0, goal: 0.01}
-      joint6: {trajectory: 1.0, goal: 0.01}
+      joint1: {trajectory: 1.0, goal: 0.05}
+      joint2: {trajectory: 1.0, goal: 0.05}
+      joint3: {trajectory: 1.0, goal: 0.05}
+      joint4: {trajectory: 1.0, goal: 0.05}
+      joint5: {trajectory: 1.0, goal: 0.05}
+      joint6: {trajectory: 1.0, goal: 0.05}
     interface_name: position
     state_publish_rate: 25.0
     action_monitor_rate: 10.0
     update_rate: 25
 
-# Original comment: only for fake control (?)
-gripper_traj_controller:
+velocity_controller:
+  ros__parameters:
+    command_interfaces:
+      - velocity
+    state_interfaces:
+      - position
+      - velocity
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+    max_velocity: 0.4   # 3.14
+    min_velocity: -0.4  #-3.14
+    kp: 1.0
+    kd: 0.1
+    timeout: 0.5
+    allow_partial_joints_goal: true
+
+gripper_controller:
   ros__parameters:
     command_interfaces:
       - position
     state_interfaces:
       - position
-      - velocity
     joints:
       - drive_joint
+    constraints:
+      goal_time: 0.5
+      stopped_velocity_tolerance: 0.0
+      drive_joint: {trajectory: 0.5, goal: 0.05}
     interface_name: position
+    state_publish_rate: 25.0
+    action_monitor_rate: 10.0
+    allow_nonzero_velocity_at_trajectory_end: true
 
-# only for fake control
-bio_gripper_traj_controller:
-  ros__parameters:
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
-    joints:
-      # - left_finger_joint
-      - right_finger_joint
-    interface_name: position

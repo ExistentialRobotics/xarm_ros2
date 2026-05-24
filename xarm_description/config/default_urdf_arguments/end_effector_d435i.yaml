@@ -1,0 +1,6 @@
+# end-effector config: wrist-mounted Intel RealSense D435i
+gripper: false
+vacuum_gripper: false
+bio_gripper: false
+realsense_d435i: true
+d435i_links: true

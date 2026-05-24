@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<!--
+  Ignition (gz-sim) sensor definitions for the wrist-mounted Intel RealSense
+  D435i. Modeled after realsense2_description/_d455.urdf.xacro, which is the
+  known-working pattern in this workspace.
+
+  Published gz topics (bridged to ROS):
+    /<prefix>camera/color           sensor_msgs/Image
+    /<prefix>camera/color/camera_info
+    /<prefix>camera/depth           sensor_msgs/Image (depth)
+    /<prefix>camera/depth/points    sensor_msgs/PointCloud2
+    /<prefix>camera/depth/camera_info
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="realsense_gz" params="
+    prefix:=''
+    camera_name:='camera'
+    update_rate:=30
+    image_width:=1280
+    image_height:=720
+    enable_infrared:=false">
+
+    <!-- Sensor attached to the link frame (X-forward, gazebo convention) so
+         the camera renders forward with identity pose. gz_frame_id matches,
+         so frame_id on the published msgs is the link frame and RViz can
+         resolve it via TF. -->
+    <gazebo reference="${prefix}camera_depth_frame">
+      <sensor name="${prefix}cameradepth" type="depth_camera">
+        <pose>0 0 0 0 0 0</pose>
+        <camera name="camera">
+          <horizontal_fov>1.48702</horizontal_fov>
+          <image>
+            <width>${image_width}</width>
+            <height>${image_height}</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10.0</far>
+          </clip>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>${update_rate}</update_rate>
+        <visualize>true</visualize>
+        <gz_frame_id>${prefix}camera_depth_frame</gz_frame_id>
+        <ignition_frame_id>${prefix}camera_depth_frame</ignition_frame_id>
+        <topic>${prefix}${camera_name}/depth</topic>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="${prefix}camera_color_frame">
+      <sensor name="${prefix}cameracolor" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <camera name="camera">
+          <horizontal_fov>1.21126</horizontal_fov>
+          <image>
+            <width>${image_width}</width>
+            <height>${image_height}</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100.0</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>${update_rate}</update_rate>
+        <visualize>true</visualize>
+        <gz_frame_id>${prefix}camera_color_frame</gz_frame_id>
+        <ignition_frame_id>${prefix}camera_color_frame</ignition_frame_id>
+        <topic>${prefix}${camera_name}/color</topic>
+      </sensor>
+    </gazebo>
+
+    <xacro:if value="${enable_infrared}">
+      <gazebo reference="${prefix}camera_left_ir_frame">
+        <sensor name="${prefix}cameraired1" type="camera">
+          <pose>0 0 0 0 0 0</pose>
+          <camera name="camera">
+            <horizontal_fov>1.48702</horizontal_fov>
+            <image>
+              <width>${image_width}</width>
+              <height>${image_height}</height>
+              <format>L_INT8</format>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.05</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>${update_rate}</update_rate>
+          <visualize>0</visualize>
+          <topic>${prefix}${camera_name}/infra1</topic>
+          <gz_frame_id>${prefix}camera_left_ir_frame</gz_frame_id>
+          <ignition_frame_id>${prefix}camera_left_ir_frame</ignition_frame_id>
+        </sensor>
+      </gazebo>
+
+      <gazebo reference="${prefix}camera_right_ir_frame">
+        <sensor name="${prefix}cameraired2" type="camera">
+          <pose>0 0 0 0 0 0</pose>
+          <camera name="camera">
+            <horizontal_fov>1.48702</horizontal_fov>
+            <image>
+              <width>${image_width}</width>
+              <height>${image_height}</height>
+              <format>L_INT8</format>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.05</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>${update_rate}</update_rate>
+          <visualize>0</visualize>
+          <topic>${prefix}${camera_name}/infra2</topic>
+          <gz_frame_id>${prefix}camera_right_ir_frame</gz_frame_id>
+          <ignition_frame_id>${prefix}camera_right_ir_frame</ignition_frame_id>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+
+  </xacro:macro>
+
+</robot>

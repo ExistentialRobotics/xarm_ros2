@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction, IncludeLaunchDescription, DeclareLaunchArgument
@@ -17,7 +11,7 @@ from launch_ros.actions import Node
 def launch_setup(context, *args, **kwargs):
     prefix = LaunchConfiguration('prefix', default='')
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
-
+    robot_type='xarm' # TODO - fix
     no_gui_ctrl = LaunchConfiguration('no_gui_ctrl', default=False)
 
     ros2_control_plugin = 'uf_robot_hardware/UFRobotFakeSystemHardware'
@@ -36,6 +30,7 @@ def launch_setup(context, *args, **kwargs):
             'prefix': prefix,
             'hw_ns': hw_ns,
             'ros2_control_plugin': ros2_control_plugin,
+            'robot_type': robot_type,
         }.items(),
     )
 
@@ -87,6 +82,7 @@ def launch_setup(context, *args, **kwargs):
             'prefix': prefix,
             'hw_ns': hw_ns,
             'ros2_control_plugin': ros2_control_plugin,
+            'robot_type': robot_type,
         }.items(),
     )
 

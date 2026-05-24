@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
 # Software License Agreement (BSD License)
-#
-# Copyright (c) 2021, UFACTORY, Inc.
-# All rights reserved.
-#
-# Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
 
 import os
 import yaml
 from tempfile import NamedTemporaryFile
 from ament_index_python import get_package_share_directory
-
 
 def add_prefix_to_ros2_control_params(prefix, ros2_control_params):
     if not prefix:
@@ -33,9 +27,8 @@ def add_prefix_to_ros2_control_params(prefix, ros2_control_params):
         if name in controller_manager_ros__parameters:
             controller_manager_ros__parameters[new_name] = controller_manager_ros__parameters.pop(name)
 
-
 def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', add_gripper=False, add_bio_gripper=False, ros_namespace='', update_rate=None, robot_type='xarm'):
-    if ros_namespace or prefix or add_gripper or add_bio_gripper or update_rate:
+    if ros_namespace or prefix or update_rate:
         with open(ros2_control_params_path, 'r') as f:
             ros2_control_params_yaml = yaml.safe_load(f)
         if update_rate is not None:
@@ -63,7 +56,7 @@ def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', 
                 
         add_prefix_to_ros2_control_params(prefix, ros2_control_params_yaml)
 
-        if not ros_namespace.startswith('/'):
+        if ros_namespace and not ros_namespace.startswith('/'):
             ros_namespace = f'/{ros_namespace}'
 
         # add namespace, possibly just slash to all nodes

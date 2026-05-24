@@ -41,14 +41,14 @@
     </visual>
   </xacro:macro>
   
-  <xacro:macro name="common_link_collision" params="mesh_filename add_mesh_suffix:=true origin_xyz:='0 0 0' origin_rpy:='0 0 0'">
+  <xacro:macro name="common_link_collision" params="mesh_filename add_mesh_suffix:=true other_mesh_suffix:='stl' origin_xyz:='0 0 0' origin_rpy:='0 0 0'">
     <collision>
       <geometry>
         <xacro:if value="${add_mesh_suffix}">
           <mesh filename="${mesh_path}/${mesh_filename}.${mesh_suffix}"/>
         </xacro:if>
         <xacro:unless value="${add_mesh_suffix}">
-          <mesh filename="${mesh_path}/${mesh_filename}"/>
+          <mesh filename="${mesh_path}/${mesh_filename}.${other_mesh_suffix}"/>
         </xacro:unless>
       </geometry>
       <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
@@ -59,7 +59,7 @@
     <origin xyz="${joint_kinematic_params['x']} ${joint_kinematic_params['y']} ${joint_kinematic_params['z']}" rpy="${joint_kinematic_params['roll']} ${joint_kinematic_params['pitch']} ${joint_kinematic_params['yaw']}" />
   </xacro:macro>
 
-  <xacro:macro name="parse_link_inertial_filename" params="dof robot_type robot_sn model1300">
+  <xacro:macro name="parse_link_inertial_filename" params="dof robot_type robot_sn model_num">
     <!-- default inertial params filename -->
     <xacro:property name="inertial_params_filename" value="xarm${dof}_type${dof}_HT_BR2"/>
     <xacro:if value="${dof == 6 and robot_type == 'lite'}">
@@ -82,7 +82,7 @@
     <!-- default model_type and mass_type -->
     <xacro:property name="mass_type" value="-1" />
     <xacro:property name="model_type" value="-1" />
-    <xacro:property name="_model1300" value="${model1300}" />
+    <xacro:property name="_model1300" value="${model_num >= 1300}" />
 
     <!-- parse model_type and mass_type from robot_sn -->
     <xacro:if value="${robot_sn_len >= 14 and (robot_sn[0] == 'X' or robot_sn[0] == 'L' or robot_sn[0] == 'F')}">
