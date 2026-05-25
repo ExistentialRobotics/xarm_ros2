@@ -55,7 +55,7 @@ def build_robot_description():
             'config', 'xarm6_controllers.yaml',
         ),
         prefix=ROBOT_PREFIX,
-        add_gripper=False,
+        add_gripper=True,
         add_bio_gripper=False,
         ros_namespace=ROBOT_NAMESPACE,
         update_rate=1000,
@@ -82,7 +82,7 @@ def build_robot_description():
                 ]),
                 'end_effector_config_file': PathJoinSubstitution([
                     FindPackageShare('xarm_description'),
-                    'config', 'default_urdf_arguments', 'end_effector_d435i.yaml',
+                    'config', 'default_urdf_arguments', 'end_effector_d435i_gripper.yaml',
                 ]),
             },
         ),
@@ -91,18 +91,37 @@ def build_robot_description():
 
 def _build_camera_bridge():
     """Bridge gz-sim sensor topics (set via <topic> in realsense.gz.xacro)
-    to ROS 2.
+    into ROS 2, then remap to the realsense_ros topic names the live bag uses:
+
+        /camera/wrist_camera/color/image_raw
+        /camera/wrist_camera/color/camera_info
+        /camera/wrist_camera/depth/image_rect_raw
+        /camera/wrist_camera/depth/camera_info
+        /camera/wrist_camera/depth/color/points
     """
-    stem = f'/{ROBOT_PREFIX}camera'
+    sim_stem = f'/{ROBOT_PREFIX}wrist_camera'
+    real_stem = '/camera/wrist_camera'
+
+    sim_color_image = f'{sim_stem}/color/image_raw'
+    sim_color_info = f'{sim_stem}/color/image_raw/camera_info'
+    sim_depth_image = f'{sim_stem}/depth/image_rect_raw'
+    sim_depth_info = f'{sim_stem}/depth/image_rect_raw/camera_info'
+    sim_depth_points = f'{sim_stem}/depth/image_rect_raw/points'
+
     args = [
-        # RGB
-        f'{stem}/color@sensor_msgs/msg/Image[ignition.msgs.Image',
-        f'{stem}/color/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
-        # Depth
-        f'{stem}/depth@sensor_msgs/msg/Image[ignition.msgs.Image',
-        f'{stem}/depth/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
-        f'{stem}/depth/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
+        f'{sim_color_image}@sensor_msgs/msg/Image[ignition.msgs.Image',
+        f'{sim_color_info}@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
+        f'{sim_depth_image}@sensor_msgs/msg/Image[ignition.msgs.Image',
+        f'{sim_depth_info}@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
+        f'{sim_depth_points}@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
         '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+    ]
+    remappings = [
+        (sim_color_image, f'{real_stem}/color/image_raw'),
+        (sim_color_info, f'{real_stem}/color/camera_info'),
+        (sim_depth_image, f'{real_stem}/depth/image_rect_raw'),
+        (sim_depth_info, f'{real_stem}/depth/camera_info'),
+        (sim_depth_points, f'{real_stem}/depth/color/points'),
     ]
     return Node(
         package='ros_gz_bridge',
@@ -110,6 +129,7 @@ def _build_camera_bridge():
         name='wrist_camera_bridge',
         output='screen',
         arguments=args,
+        remappings=remappings,
         parameters=[{'use_sim_time': True}],
     )
 
@@ -149,6 +169,11 @@ def _build_camera_frame_aliases():
             'tf_alias_cameracolor',
             f'{ROBOT_PREFIX}camera_color_frame',
             f'{model}/{link}/{ROBOT_PREFIX}cameracolor',
+        ),
+        static_tf(
+            'tf_alias_wrist_camera',
+            f'{ROBOT_PREFIX}camera_depth_frame',
+            f'wrist_camera_depth_optical_frame',
         ),
     ]
 
@@ -206,6 +231,7 @@ def _launch_setup(context, *args, **kwargs):
     controllers = [
         'joint_state_broadcaster',
         f'{ROBOT_PREFIX}traj_controller',
+        f'{ROBOT_PREFIX}gripper_controller',
     ]
     spawn_controllers = [
         Node(

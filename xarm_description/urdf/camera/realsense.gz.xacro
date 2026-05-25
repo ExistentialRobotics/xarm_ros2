@@ -15,8 +15,8 @@
 
   <xacro:macro name="realsense_gz" params="
     prefix:=''
-    camera_name:='camera'
-    update_rate:=30
+    camera_name:='wrist_camera'
+    update_rate:=10
     image_width:=1280
     image_height:=720
     enable_infrared:=false">
@@ -44,7 +44,7 @@
         <visualize>true</visualize>
         <gz_frame_id>${prefix}camera_depth_frame</gz_frame_id>
         <ignition_frame_id>${prefix}camera_depth_frame</ignition_frame_id>
-        <topic>${prefix}${camera_name}/depth</topic>
+        <topic>${prefix}${camera_name}/depth/image_rect_raw</topic>
       </sensor>
     </gazebo>
 
@@ -73,7 +73,7 @@
         <visualize>true</visualize>
         <gz_frame_id>${prefix}camera_color_frame</gz_frame_id>
         <ignition_frame_id>${prefix}camera_color_frame</ignition_frame_id>
-        <topic>${prefix}${camera_name}/color</topic>
+        <topic>${prefix}${camera_name}/color/image_raw</topic>
       </sensor>
     </gazebo>
 
