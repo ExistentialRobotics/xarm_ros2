@@ -274,7 +274,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Best Effort
-        Value: /xarm6_camera/depth/points
+        Value: /camera/wrist_camera/depth/color/points
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -290,7 +290,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
-        Value: /xarm6_camera/color
+        Value: /camera/wrist_camera/color/image_raw
       Value: true
     - Class: rviz_default_plugins/Image
       Enabled: true
@@ -304,7 +304,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
-        Value: /xarm6_camera/depth
+        Value: /camera/wrist_camera/depth/image_rect_raw
       Value: true
   Enabled: true
   Global Options:
