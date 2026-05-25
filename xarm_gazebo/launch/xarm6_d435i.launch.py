@@ -17,17 +17,19 @@ import yaml
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
+    DeclareLaunchArgument,
     IncludeLaunchDescription,
     OpaqueFunction,
     RegisterEventHandler,
     TimerAction,
 )
+from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import (
     PythonLaunchDescriptionSource,
     load_python_launch_file_as_module,
 )
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from uf_ros_lib.uf_robot_utils import get_xacro_command
@@ -55,7 +57,7 @@ def build_robot_description():
             'config', 'xarm6_controllers.yaml',
         ),
         prefix=ROBOT_PREFIX,
-        add_gripper=True,
+        add_gripper=False,
         add_bio_gripper=False,
         ros_namespace=ROBOT_NAMESPACE,
         update_rate=1000,
@@ -82,7 +84,7 @@ def build_robot_description():
                 ]),
                 'end_effector_config_file': PathJoinSubstitution([
                     FindPackageShare('xarm_description'),
-                    'config', 'default_urdf_arguments', 'end_effector_d435i_gripper.yaml',
+                    'config', 'default_urdf_arguments', 'end_effector_d435i.yaml',
                 ]),
             },
         ),
@@ -114,6 +116,8 @@ def _build_camera_bridge():
         f'{sim_depth_image}@sensor_msgs/msg/Image[ignition.msgs.Image',
         f'{sim_depth_info}@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo',
         f'{sim_depth_points}@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked',
+        # 3rd-person scene camera defined in table_with_obstacle.world.
+        '/scene_cam/image@sensor_msgs/msg/Image[ignition.msgs.Image',
         '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
     ]
     remappings = [
@@ -224,14 +228,24 @@ def _launch_setup(context, *args, **kwargs):
         output='screen',
         arguments=['-d', rviz_config, '--ros-args', '-p', 'use_sim_time:=true'],
         parameters=[{'use_sim_time': True}],
+        condition=IfCondition(LaunchConfiguration('start_rviz')),
     )
 
     spawn = _spawn_robot()
 
+    # Pick the arm controller from the launch arg. traj_controller and
+    # velocity_controller both claim the velocity command interface, so only
+    # one can be active at a time. The CBF pipeline writes to
+    # xarm6_velocity_controller/commands, so the CBF demo selects 'velocity'.
+    controller_type = context.launch_configurations.get('controller_type', 'traj')
+    arm_controller = (
+        f'{ROBOT_PREFIX}velocity_controller'
+        if controller_type == 'velocity'
+        else f'{ROBOT_PREFIX}traj_controller'
+    )
     controllers = [
         'joint_state_broadcaster',
-        f'{ROBOT_PREFIX}traj_controller',
-        f'{ROBOT_PREFIX}gripper_controller',
+        arm_controller,
     ]
     spawn_controllers = [
         Node(
@@ -274,6 +288,37 @@ def generate_launch_description():
         'worlds', 'table.world',
     )
 
+    world_arg = DeclareLaunchArgument(
+        'world_file',
+        default_value=default_world,
+        description='Absolute path to the .world / .sdf file to load.',
+    )
+    controller_arg = DeclareLaunchArgument(
+        'controller_type',
+        default_value='traj',
+        choices=['traj', 'velocity'],
+        description='Which arm controller to spawn (traj | velocity). The CBF '
+                    'demo needs velocity; standalone use defaults to traj.',
+    )
+    start_rviz_arg = DeclareLaunchArgument(
+        'start_rviz',
+        default_value='true',
+        choices=['true', 'false'],
+        description='Whether this launch should start its own rviz2 instance.',
+    )
+    headless_arg = DeclareLaunchArgument(
+        'headless',
+        default_value='false',
+        choices=['true', 'false'],
+        description='Run gz sim server-only (no Qt GUI). Required when no X display is available — e.g. inside the docker-compose deploy.',
+    )
+
+    # `-s` runs gz sim server-only (no Qt GUI). Headless is required when the
+    # container has no usable X display — otherwise Qt aborts on platform
+    # plugin init and the whole launch is torn down.
+    headless_flag = PythonExpression([
+        "'-s ' if '", LaunchConfiguration('headless'), "' == 'true' else ''",
+    ])
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -281,7 +326,9 @@ def generate_launch_description():
                 'launch', 'gz_sim.launch.py',
             ])
         ),
-        launch_arguments={'gz_args': f' -r {default_world}'}.items(),
+        launch_arguments={
+            'gz_args': [headless_flag, '-r ', LaunchConfiguration('world_file')],
+        }.items(),
     )
 
     # Bridge needs the gz sensors to have advertised topics; give the spawn
@@ -292,6 +339,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        world_arg,
+        controller_arg,
+        start_rviz_arg,
+        headless_arg,
         gazebo,
         OpaqueFunction(function=_launch_setup),
         delayed_bridge,

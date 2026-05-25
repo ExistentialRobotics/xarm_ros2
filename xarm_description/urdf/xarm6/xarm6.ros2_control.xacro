@@ -13,7 +13,11 @@
     joint6_lower_limit:=${-10*pi}  joint6_upper_limit:=${10*pi}">
     
     <!-- Define initial joint position -->
-    <xacro:property name="init_joint_pos" value="${[0.0, -0.78, -0.78, 0.0, 1.5708, 0.0]}" />
+    <!-- Arm starts higher than the canonical "ready" pose so the stick EE
+         has 30+cm of clearance above the table for the CBF demo. joint2/3
+         bend less, joint5 still pitches the wrist down so the camera looks
+         straight at the table. -->
+    <xacro:property name="init_joint_pos" value="${[0.0, -0.30, -0.30, 0.0, 0.6, 0.0]}" />
     
     <ros2_control name="${prefix}${ros2_control_plugin}" type="system">
       <hardware>
